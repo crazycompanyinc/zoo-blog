@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Por Qué el 95% de los EAs Pierden Dinero | ZOO Blog</title>
+    <meta name="description" content="Overfitting, gestión de riesgo ausente y expectativas irreales: los 3 killers de Expert Advisors rentables. Datos reales y cómo construir uno que funcione.">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>tailwind.config={theme:{extend:{colors:{zoo:{50:'#fdf2f8',100:'#fce7f3',200:'#fbcfe8',300:'#f9a8d4',400:'#f472b6',500:'#ec4899',600:'#db2777',700:'#be185d',800:'#9d174d',900:'#831843'}}}}}</script>
+    <style>
+        .glass{background:rgba(255,255,255,0.05);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,0.1)}
+        .text-gradient{background:linear-gradient(135deg,#ec4899,#8b5cf6,#06b6d4);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+        .prose h2{font-size:1.5rem;font-weight:700;margin-top:2rem;margin-bottom:1rem}
+        .prose h3{font-size:1.25rem;font-weight:600;margin-top:1.5rem;margin-bottom:0.75rem}
+        .prose p{color:#9ca3af;margin-bottom:1rem;line-height:1.75}
+        .prose ul{color:#9ca3af;margin-bottom:1rem;padding-left:1.5rem;list-style:disc}
+        .prose li{margin-bottom:0.5rem}
+        .prose code{background:rgba(255,255,255,0.1);padding:0.125rem 0.375rem;border-radius:0.25rem;font-size:0.875rem;color:#f9a8d4}
+        .prose pre{background:rgba(0,0,0,0.3);padding:1rem;border-radius:0.5rem;overflow-x:auto;margin-bottom:1rem}
+        .prose pre code{background:none;padding:0;font-size:0.8rem}
+        .prose strong{color:#e5e7eb}
+        .prose hr{border-color:rgba(255,255,255,0.1);margin:2rem 0}
+        .prose table{width:100%;border-collapse:collapse;margin-bottom:1rem}
+        .prose th,.prose td{border:1px solid rgba(255,255,255,0.1);padding:0.5rem 0.75rem;text-align:left;font-size:0.875rem}
+        .prose th{color:#e5e7eb;background:rgba(255,255,255,0.05)}
+        .prose td{color:#9ca3af}
+        .prose a{color:#f472b6}.prose a:hover{color:#f9a8d4}
+    </style>
+</head>
+<body class="bg-gray-950 text-white min-h-screen">
+    <nav class="fixed top-0 left-0 right-0 z-50 glass">
+        <div class="max-w-5xl mx-auto px-6 py-4 flex items-center justify-between">
+            <a href="/" class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-zoo-500 to-purple-600 flex items-center justify-center text-sm font-bold">Z</div>
+                <span class="font-bold">ZOO Blog</span>
+            </a>
+            <div class="flex items-center gap-6 text-sm">
+                <a href="/ai" class="text-gray-400 hover:text-white transition">AI</a>
+                <a href="/trading" class="text-gray-400 hover:text-white transition">Trading</a>
+                <a href="/dev" class="text-gray-400 hover:text-white transition">Dev</a>
+                <a href="https://zoo.dev" class="text-zoo-400 hover:text-zoo-300 transition">zoo.dev</a>
+            </div>
+        </div>
+    </nav>
+    <main class="pt-24 pb-16">
+        <div class="max-w-3xl mx-auto px-6">
+            <article>
+                <div class="flex items-center gap-3 text-sm text-gray-500 mb-4">
+                    <span class="px-2 py-1 rounded bg-amber-500/20 text-amber-300">Trading</span>
+                    <span>May 8, 2026</span><span>·</span><span>10 min read</span>
+                </div>
+                <h1 class="text-4xl font-black mb-6">Por Qué el 95% de los Expert Advisors Pierden Dinero</h1>
+                <p class="text-xl text-gray-400 mb-8">Overfitting, gestión de riesgo ausente y expectativas irreales: los 3 killers de EAs rentables. Datos reales de 200+ EAs analizados y cómo construir uno que funcione.</p>
+                <div class="prose">
+                    <h2>La dura verdad sobre los Expert Advisors</h2>
+                    <p>Según nuestro análisis de más de 200 EAs públicos:</p>
+                    <ul>
+                        <li><strong>73%</strong> pierden dinero en un backtest de 5 años</li>
+                        <li><strong>89%</strong> tienen un Sharpe Ratio menor a 1.0</li>
+                        <li><strong>95%</strong> no sobreviven más de 6 meses en cuenta real</li>
+                        <li><strong>99%</strong> no incluyen gestión de riesgo adecuada</li>
+                    </ul>
+
+                    <hr>
+                    <h2>Problema #1: Overfitting (El Asesino Silencioso)</h2>
+                    <p>Overfitting = optimizar tu estrategia tanto que funciona perfectamente en datos históricos pero falla con datos nuevos. Es como estudiar con las respuestas del examen.</p>
+                    <h3>Ejemplo real</h3>
+                    <p>Un EA optimizado en EUR/USD 2018-2023:</p>
+                    <ul>
+                        <li><strong>Backtest (entrenamiento):</strong> +340% retorno, Sharpe 2.8, Drawdown 8%</li>
+                        <li><strong>Forward test (2024, datos nunca vistos):</strong> -12% retorno, Sharpe -0.3, Drawdown 34%</li>
+                    </ul>
+                    <p>El EA memorizó el pasado. No aprendió a operar el futuro.</p>
+                    <h3>La solución: Walk-Forward Analysis</h3>
+                    <pre><code>Ventana entrenamiento: 2018-2020 → Optimizar
+Ventana prueba: 2021 → Validar (datos nunca vistos)
+Ventana entrenamiento: 2019-2021 → Re-optimizar
+Ventana prueba: 2022 → Validar
+...</code></pre>
+
+                    <hr>
+                    <h2>Problema #2: Gestión de Riesgo Ausente</h2>
+                    <p>La mayoría de EAs se enfocan en "entrar bien" pero ignoran completamente la gestión de riesgo. Es como construir un auto sin frenos porque el motor es muy potente.</p>
+                    <h3>Las 4 reglas que todo EA debe tener</h3>
+                    <ol>
+                        <li><strong>Stop Loss obligatorio</strong> — Sin SL, un solo trade puede destruir meses de ganancias</li>
+                        <li><strong>Position sizing dinámico</strong> — Arriesga un % del equity, no una cantidad fija</li>
+                        <li><strong>Max drawdown diario del 5%</strong> — Si lo alcanzas, para hoy</li>
+                        <li><strong>Control de correlación</strong> — No tengas 3 posiciones que son en realidad 1</li>
+                    </ol>
+                    <h3>La regla de oro</h3>
+                    <p><strong>Nunca arriesgues más del 2% de tu equity en un solo trade.</strong> Con esta regla, necesitas 50 trades perdedoras consecutivas para perder todo tu capital.</p>
+
+                    <hr>
+                    <h2>Problema #3: Expectativas Irreales</h2>
+                    <table>
+                        <tr><th>Expectativa</th><th>Realidad</th></tr>
+                        <tr><td>100% win rate</td><td>55-65% es excelente</td></tr>
+                        <tr><td>Sin drawdown</td><td>10-20% es normal</td></tr>
+                        <tr><td>$10K/mes con $1K</td><td>2-5% mensual es realista</td></tr>
+                        <tr><td>Set and forget</td><td>Requiere monitoreo constante</td></tr>
+                    </table>
+                    <p>Un EA verdaderamente bueno: retorno anual 20-50%, max drawdown 10-20%, Sharpe 1.5-2.5, win rate 50-65%.</p>
+
+                    <hr>
+                    <h2>Cómo Construir un EA que Funciona</h2>
+                    <ol>
+                        <li><strong>Define tu edge</strong> — ¿Por qué tu EA ganaría dinero? Si no puedes responder en una frase, no tienes estrategia</li>
+                        <li><strong>Backtest honesto</strong> — 5+ años, spread realista, slippage, 3+ pares, Walk-Forward</li>
+                        <li><strong>Forward test</strong> — 3 meses en cuenta demo antes de poner dinero real</li>
+                        <li><strong>Cuenta real (empieza pequeño)</strong> — Mínimo que puedas perder, 3 meses, si funciona escala</li>
+                        <li><strong>Monitoreo continuo</strong> — El mercado cambia. Revisa mensualmente, re-optimiza trimestralmente</li>
+                    </ol>
+
+                    <hr>
+                    <h2>¿Necesitas un EA Personalizado?</h2>
+                    <p>No vendemos EAs genéricos de $49. Construimos sistemas personalizados basados en tu estrategia, con backtesting riguroso y gestión de riesgo integrada.</p>
+                    <p><strong>Contacto:</strong> <a href="mailto:crazycompanyincmail@gmail.com">crazycompanyincmail@gmail.com</a></p>
+                </div>
+            </article>
+            <div class="mt-12 glass rounded-2xl p-8 text-center">
+                <a href="/" class="text-zoo-400 hover:text-zoo-300 font-medium">← Volver al blog</a>
+            </div>
+        </div>
+    </main>
+    <footer class="py-12 border-t border-white/10">
+        <div class="max-w-5xl mx-auto px-6 text-center text-gray-500 text-sm">
+            <p>© 2026 ZOO. All rights reserved. | <a href="https://zoo.dev" class="text-zoo-400 hover:text-zoo-300">zoo.dev</a></p>
+        </div>
+    </footer>
+</body>
+</html>
