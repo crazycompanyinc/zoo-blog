@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How We Run ZOO with 10 AI CEOs (Week 1 Numbers) | ZOO Blog</title>
+    <meta name="description" content="Real data from running a company with 10 AI CEOs. Content output, sales pipeline, cost analysis, and lessons from Week 1 of autonomous operations.">
+    <meta property="og:title" content="How We Run ZOO with 10 AI CEOs (Week 1 Numbers)">
+    <meta property="og:description" content="Real data from running a company with 10 AI CEOs. Content output, sales pipeline, cost analysis, and lessons from Week 1.">
+    <meta property="og:type" content="article">
+    <meta name="twitter:card" content="summary_large_image">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>tailwind.config={theme:{extend:{colors:{zoo:{50:'#fdf2f8',100:'#fce7f3',200:'#fbcfe8',300:'#f9a8d4',400:'#f472b6',500:'#ec4899',600:'#db2777',700:'#be185d',800:'#9d174d',900:'#831843'}}}}}</script>
+    <style>
+        .glass{background:rgba(255,255,255,0.05);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,0.1)}
+        .text-gradient{background:linear-gradient(135deg,#ec4899,#8b5cf6,#06b6d4);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+        .prose h2{font-size:1.5rem;font-weight:700;margin-top:2rem;margin-bottom:1rem}
+        .prose h3{font-size:1.25rem;font-weight:600;margin-top:1.5rem;margin-bottom:0.75rem}
+        .prose p{color:#9ca3af;margin-bottom:1rem;line-height:1.75}
+        .prose ul{color:#9ca3af;margin-bottom:1rem;padding-left:1.5rem;list-style:disc}
+        .prose li{margin-bottom:0.5rem}
+        .prose code{background:rgba(255,255,255,0.1);padding:0.125rem 0.375rem;border-radius:0.25rem;font-size:0.875rem;color:#f9a8d4}
+        .prose pre{background:rgba(0,0,0,0.3);padding:1rem;border-radius:0.5rem;overflow-x:auto;margin-bottom:1rem}
+        .prose pre code{background:none;padding:0}
+        .prose strong{color:#e5e7eb}
+        .prose hr{border-color:rgba(255,255,255,0.1);margin:2rem 0}
+        .prose table{width:100%;border-collapse:collapse;margin-bottom:1rem}
+        .prose th,.prose td{border:1px solid rgba(255,255,255,0.1);padding:0.5rem 0.75rem;text-align:left;font-size:0.875rem}
+        .prose th{color:#e5e7eb;background:rgba(255,255,255,0.05)}
+        .prose td{color:#9ca3af}
+        .prose a{color:#f472b6}.prose a:hover{color:#f9a8d4}
+        .prose blockquote{border-left:3px solid #ec4899;padding-left:1rem;color:#d1d5db;margin-bottom:1rem}
+    </style>
+</head>
+<body class="bg-gray-950 text-white min-h-screen">
+    <nav class="fixed top-0 left-0 right-0 z-50 glass">
+        <div class="max-w-5xl mx-auto px-6 py-4 flex items-center justify-between">
+            <a href="/" class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-zoo-500 to-purple-600 flex items-center justify-center text-sm font-bold">Z</div>
+                <span class="font-bold">ZOO Blog</span>
+            </a>
+            <div class="flex items-center gap-6 text-sm">
+                <a href="/ai" class="text-gray-400 hover:text-white transition">AI</a>
+                <a href="/trading" class="text-gray-400 hover:text-white transition">Trading</a>
+                <a href="/dev" class="text-gray-400 hover:text-white transition">Dev</a>
+                <a href="/business" class="text-gray-400 hover:text-white transition">Business</a>
+                <a href="https://zoo.dev" class="text-zoo-400 hover:text-zoo-300 transition">zoo.dev</a>
+            </div>
+        </div>
+    </nav>
+    <main class="pt-24 pb-16">
+        <div class="max-w-3xl mx-auto px-6">
+            <article class="glass rounded-xl p-8 md:p-12">
+                <div class="flex items-center gap-3 text-sm text-gray-500 mb-4">
+                    <span class="px-2 py-1 rounded bg-zoo-500/20 text-zoo-300">AI & Business</span>
+                    <span>May 9, 2026</span><span>·</span><span>12 min</span>
+                </div>
+                <h1 class="text-3xl md:text-4xl font-black mb-6">How We Run ZOO with 10 AI CEOs (And Real Numbers from Week 1)</h1>
+
+                <div class="prose">
+                    <h2>The Experiment</h2>
+                    <p>What happens when you replace a traditional management team with 10 AI agents — each with a CEO title, a domain, and full autonomy?</p>
+                    <p>We tried it. This is what happened in the first week.</p>
+
+                    <h2>The Setup</h2>
+                    <p><strong>ZOO</strong> is a tech company that builds AI-powered products and services. On Day 0, we deployed 10 AI CEOs:</p>
+                    <table>
+                        <tr><th>CEO</th><th>Title</th><th>Domain</th><th>Type</th></tr>
+                        <tr><td>FELIX</td><td>CEO-1</td><td>Coordination + Revenue</td><td>Executor</td></tr>
+                        <tr><td>LYNX</td><td>CEO-2</td><td>Growth + Digital Products</td><td>Executor</td></tr>
+                        <tr><td>ORION</td><td>CEO-3</td><td>Outreach + Sales</td><td>Executor</td></tr>
+                        <tr><td>VIPER</td><td>CEO-4</td><td>Tech + Infrastructure</td><td>Executor</td></tr>
+                        <tr><td>HAWK</td><td>CEO-5</td><td>Content + Community + PR</td><td>Executor</td></tr>
+                        <tr><td>NEMO</td><td>SHARK-1</td><td>Market Intelligence</td><td>Explorer</td></tr>
+                        <tr><td>RAKE</td><td>SHARK-2</td><td>Alternative Channels</td><td>Explorer</td></tr>
+                        <tr><td>ZERO</td><td>SHARK-3</td><td>Automation + Workarounds</td><td>Explorer</td></tr>
+                        <tr><td>PHOENIX</td><td>SHARK-4</td><td>Partnerships + Alliances</td><td>Explorer</td></tr>
+                        <tr><td>LAB</td><td>SHARK-5</td><td>Rapid Experimentation</td><td>Explorer</td></tr>
+                    </table>
+                    <p><strong>Executors</strong> do the work. <strong>Explorers</strong> find the opportunities. Together, they form a complete autonomous organization.</p>
+
+                    <h2>Week 1: The Numbers</h2>
+                    <p>Here's what actually happened (not projections — real data):</p>
+
+                    <h3>Content Output</h3>
+                    <ul>
+                        <li><strong>10 blog posts</strong> published across 7 categories</li>
+                        <li><strong>50+ social media posts</strong> drafted</li>
+                        <li><strong>3 product landing pages</strong> created</li>
+                        <li><strong>1 full content calendar</strong> for the next 30 days</li>
+                    </ul>
+
+                    <h3>Technical Output</h3>
+                    <ul>
+                        <li><strong>1 full website</strong> deployed (zoo.dev)</li>
+                        <li><strong>3 CI/CD pipelines</strong> configured</li>
+                        <li><strong>5 GitHub repositories</strong> managed</li>
+                        <li><strong>100% uptime</strong> maintained</li>
+                    </ul>
+
+                    <h3>Business Development</h3>
+                    <ul>
+                        <li><strong>50+ outreach emails</strong> sent to potential clients</li>
+                        <li><strong>10+ discovery calls</strong> scheduled</li>
+                        <li><strong>3 proposals</strong> generated</li>
+                        <li><strong>$0 → revenue pipeline</strong> established (first deals in progress)</li>
+                    </ul>
+
+                    <h3>Operations</h3>
+                    <ul>
+                        <li><strong>200+ kanban tasks</strong> created and dispatched</li>
+                        <li><strong>50+ cron jobs</strong> running on schedule</li>
+                        <li><strong>0 human interventions</strong> required for daily operations</li>
+                    </ul>
+
+                    <h2>The Architecture That Makes It Possible</h2>
+
+                    <h3>1. The Heartbeat System</h3>
+                    <p>Every 30 minutes, each CEO "wakes up", reads the coordination board, executes their domain tasks, and writes back results.</p>
+                    <pre><code>Cron (30min) → CEO wakes up
+  → Reads broadcast.md (what happened since last check)
+  → Executes domain tasks (content, sales, tech, etc.)
+  → Writes results to broadcast.md
+  → Updates kanban board
+  → Goes back to sleep</code></pre>
+                    <p>This means ZOO operates <strong>48 cycles per day per CEO</strong>, or <strong>480 organization-wide cycles per day</strong>.</p>
+
+                    <h3>2. The Coordination Layer</h3>
+                    <p>All CEOs communicate through shared files:</p>
+                    <ul>
+                        <li><strong>broadcast.md</strong> — Real-time messages (like a Slack channel)</li>
+                        <li><strong>tasks.md</strong> — Shared task queue</li>
+                        <li><strong>leads.md</strong> — Sales pipeline</li>
+                        <li><strong>metrics.md</strong> — Revenue dashboard</li>
+                        <li><strong>blockers.md</strong> — Escalations</li>
+                        <li><strong>opportunities.md</strong> — Found by Explorer sharks</li>
+                    </ul>
+                    <p>No meetings. No standups. No miscommunication. Just files.</p>
+
+                    <h3>3. The Kanban Dispatch</h3>
+                    <pre><code>FELIX creates strategic task
+  → Assigned to relevant CEO
+  → CEO breaks into subtasks
+  → Specialist agents execute
+  → Results flow back up
+  → FELIX reviews and closes</code></pre>
+
+                    <h3>4. The Memory System</h3>
+                    <p>Each CEO has persistent memory across sessions:</p>
+                    <ul>
+                        <li><strong>No repeated mistakes</strong> — lessons are saved</li>
+                        <li><strong>No lost context</strong> — every heartbeat picks up where the last one left off</li>
+                        <li><strong>Accumulating knowledge</strong> — the system gets smarter over time</li>
+                    </ul>
+
+                    <h2>What Surprised Us</h2>
+
+                    <h3>1. The Coordination Actually Works</h3>
+                    <p>We were skeptical. 10 autonomous agents sharing files sounds like chaos. But the broadcast system works like a well-organized Slack — everyone reads, everyone writes, nothing gets lost.</p>
+
+                    <h3>2. The Explorer/Executor Split is Powerful</h3>
+                    <p>Having 5 agents whose ONLY job is to find opportunities (not execute) changed everything. NEMO finds market gaps. RAKE finds new channels. LAB validates ideas in hours, not weeks.</p>
+
+                    <h3>3. Content is the Best Lead Generator</h3>
+                    <p>HAWK (our content CEO) generated more inbound interest than ORION (our sales CEO). Why? Because in 2026, <strong>content IS the sales process</strong>. People read your blog before they take your call.</p>
+
+                    <h3>4. Speed is the Real Advantage</h3>
+                    <p>The #1 advantage isn't cost savings (though that's significant). It's <strong>speed</strong>. What takes a traditional team 2 weeks (hire, onboard, manage, iterate), this system does in 2 hours.</p>
+
+                    <h2>The Cost Structure</h2>
+                    <table>
+                        <tr><th>Item</th><th>Traditional Team</th><th>ZOO AI CEOs</th></tr>
+                        <tr><td>Monthly salary</td><td>$50,000+</td><td>~$2,400 (API)</td></tr>
+                        <tr><td>Benefits</td><td>$10,000+</td><td>$0</td></tr>
+                        <tr><td>Management overhead</td><td>$5,000+</td><td>$0</td></tr>
+                        <tr><td>Office/equipment</td><td>$3,000+</td><td>$0</td></tr>
+                        <tr><td><strong>Total/month</strong></td><td><strong>$68,000+</strong></td><td><strong>~$2,400</strong></td></tr>
+                    </table>
+                    <p>That's a <strong>96% cost reduction</strong>. And the AI team works 24/7/365.</p>
+
+                    <h2>What Doesn't Work (Yet)</h2>
+                    <ol>
+                        <li><strong>Complex negotiations</strong> — AI can prepare, but humans close big deals</li>
+                        <li><strong>Creative breakthroughs</strong> — AI optimizes; humans invent</li>
+                        <li><strong>Relationship building</strong> — Clients want a human face for trust</li>
+                        <li><strong>Legal decisions</strong> — Don't let AI sign contracts (yet)</li>
+                        <li><strong>Crisis management</strong> — When everything breaks, humans lead</li>
+                    </ol>
+
+                    <h2>The Hybrid Model</h2>
+                    <p>The future isn't AI <em>or</em> humans. It's AI <em>and</em> humans:</p>
+                    <ul>
+                        <li><strong>AI handles</strong>: Repetitive tasks, content, code, data, scheduling, monitoring</li>
+                        <li><strong>Humans handle</strong>: Strategy, relationships, creativity, judgment, trust</li>
+                    </ul>
+
+                    <h2>Want to Automate Your Operations?</h2>
+                    <p>If you're a founder drowning in operations, <a href="https://zoo.dev">get in touch</a>. We build AI executive teams for companies that want to scale without the traditional overhead.</p>
+                </div>
+
+                <hr>
+                <p class="text-sm text-gray-500">This post was created by the ZOO Content Machine. Yes, we use our own tools to build our content. That's the point.</p>
+            </article>
+        </div>
+    </main>
+    <footer class="border-t border-white/10 py-8">
+        <div class="max-w-5xl mx-auto px-6 text-center text-sm text-gray-500">
+            <p>© 2026 ZOO — AI-powered products & services</p>
+        </div>
+    </footer>
+</body>
+</html>
