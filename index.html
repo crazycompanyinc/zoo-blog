@@ -3,23 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Blog — ZOO</title>
-    <meta name="description" content="Insights on AI, trading, development, and building autonomous systems.">
+    <title>Blog — ZOO | AI, Trading & Development Insights</title>
+    <meta name="description" content="Insights on AI agents, algorithmic trading, full-stack development, and building autonomous systems. From the team at ZOO.">
     <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        zoo: { 50: '#fdf2f8', 100: '#fce7f3', 200: '#fbcfe8', 300: '#f9a8d4', 400: '#f472b6', 500: '#ec4899', 600: '#db2777', 700: '#be185d', 800: '#9d174d', 900: '#831843' }
-                    }
-                }
-            }
-        }
-    </script>
+    <script>tailwind.config={theme:{extend:{colors:{zoo:{50:'#fdf2f8',100:'#fce7f3',200:'#fbcfe8',300:'#f9a8d4',400:'#f472b6',500:'#ec4899',600:'#db2777',700:'#be185d',800:'#9d174d',900:'#831843'}}}}}</script>
     <style>
-        .glass { background: rgba(255,255,255,0.05); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.1); }
-        .text-gradient { background: linear-gradient(135deg, #ec4899, #8b5cf6, #06b6d4); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .glass{background:rgba(255,255,255,0.05);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,0.1)}
+        .text-gradient{background:linear-gradient(135deg,#ec4899,#8b5cf6,#06b6d4);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
     </style>
 </head>
 <body class="bg-gray-950 text-white min-h-screen">
@@ -38,107 +28,61 @@
             </div>
         </div>
     </nav>
-
     <main class="pt-24 pb-16">
         <div class="max-w-5xl mx-auto px-6">
-            <!-- Hero -->
             <div class="text-center mb-16">
                 <h1 class="text-5xl font-black mb-4">ZOO <span class="text-gradient">Blog</span></h1>
-                <p class="text-xl text-gray-400">Building the future of AI-native technology</p>
+                <p class="text-xl text-gray-400">AI agents, algorithmic trading, and building autonomous systems</p>
             </div>
-
-            <!-- Categories -->
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-16">
-                <a href="/ai" class="glass rounded-xl p-6 text-center hover:border-zoo-500/50 transition">
-                    <div class="text-3xl mb-2">🤖</div>
-                    <div class="font-bold">AI & Agents</div>
-                    <div class="text-sm text-gray-500">Autonomous systems</div>
-                </a>
-                <a href="/trading" class="glass rounded-xl p-6 text-center hover:border-purple-500/50 transition">
-                    <div class="text-3xl mb-2">📊</div>
-                    <div class="font-bold">Trading</div>
-                    <div class="text-sm text-gray-500">Algos & EAs</div>
-                </a>
-                <a href="/dev" class="glass rounded-xl p-6 text-center hover:border-cyan-500/50 transition">
-                    <div class="text-3xl mb-2">💻</div>
-                    <div class="font-bold">Development</div>
-                    <div class="text-sm text-gray-500">Code & tools</div>
-                </a>
-                <a href="/business" class="glass rounded-xl p-6 text-center hover:border-amber-500/50 transition">
-                    <div class="text-3xl mb-2">🚀</div>
-                    <div class="font-bold">Business</div>
-                    <div class="text-sm text-gray-500">Growth & revenue</div>
-                </a>
+                <a href="#ai" class="glass rounded-xl p-6 text-center hover:border-zoo-500/50 transition"><div class="text-3xl mb-2">🤖</div><div class="font-bold">AI & Agents</div></a>
+                <a href="#trading" class="glass rounded-xl p-6 text-center hover:border-purple-500/50 transition"><div class="text-3xl mb-2">📊</div><div class="font-bold">Trading</div></a>
+                <a href="#business" class="glass rounded-xl p-6 text-center hover:border-cyan-500/50 transition"><div class="text-3xl mb-2">🚀</div><div class="font-bold">Business</div></a>
+                <a href="https://github.com/crazycompanyinc" class="glass rounded-xl p-6 text-center hover:border-amber-500/50 transition"><div class="text-3xl mb-2">💻</div><div class="font-bold">Open Source</div></a>
             </div>
-
-            <!-- Featured Posts -->
             <h2 class="text-2xl font-bold mb-8">Latest Posts</h2>
             <div class="space-y-6">
-                <article class="glass rounded-xl p-8 hover:border-purple-500/50 transition">
+
+                <article id="business" class="glass rounded-xl p-8 hover:border-cyan-500/50 transition">
                     <div class="flex items-center gap-3 text-sm text-gray-500 mb-3">
-                        <span class="px-2 py-1 rounded bg-purple-500/20 text-purple-300">Trading</span>
-                        <span>May 8, 2026</span>
+                        <span class="px-2 py-1 rounded bg-cyan-500/20 text-cyan-300">Business</span><span>May 9, 2026</span><span>·</span><span>10 min</span>
                     </div>
-                    <h3 class="text-2xl font-bold mb-3">Cómo construimos un Trading Platform completo con IA</h3>
-                    <p class="text-gray-400 mb-4">Arquitectura real, backtesting engine, señales IA, gestión de riesgo y lecciones aprendidas construyendo un sistema de trading algorítmico en producción.</p>
-                    <a href="/posts/trading-platform-ia-guide.html" class="text-purple-400 hover:text-purple-300 font-medium">Read more →</a>
+                    <h3 class="text-2xl font-bold mb-3">Cómo Elegir una Agencia de Desarrollo en 2026</h3>
+                    <p class="text-gray-400 mb-4">7 red flags, 7 green flags, 15 preguntas que debes hacer, comparativa de modelos y presupuestos realistas.</p>
+                    <a href="/posts/choose-dev-agency.html" class="text-cyan-400 hover:text-cyan-300 font-medium">Read more →</a>
                 </article>
 
-                <article class="glass rounded-xl p-8 hover:border-zoo-500/50 transition">
+                <article id="ai" class="glass rounded-xl p-8 hover:border-zoo-500/50 transition">
                     <div class="flex items-center gap-3 text-sm text-gray-500 mb-3">
-                        <span class="px-2 py-1 rounded bg-zoo-500/20 text-zoo-300">AI</span>
-                        <span>May 8, 2026</span>
+                        <span class="px-2 py-1 rounded bg-zoo-500/20 text-zoo-300">AI</span><span>May 8, 2026</span><span>·</span><span>12 min</span>
                     </div>
                     <h3 class="text-2xl font-bold mb-3">AI Agents para Automatización de Negocios en 2026</h3>
-                    <p class="text-gray-400 mb-4">Guía completa: cómo los agentes de IA pueden automatizar el 40-60% de tareas repetitivas, arquitectura real, casos de negocio con números y cómo empezar esta semana.</p>
+                    <p class="text-gray-400 mb-4">Cómo los agentes de IA pueden automatizar el 40-60% de tareas repetitivas, arquitectura real y casos de negocio con números.</p>
                     <a href="/posts/ai-agents-automation.html" class="text-zoo-400 hover:text-zoo-300 font-medium">Read more →</a>
                 </article>
 
                 <article class="glass rounded-xl p-8 hover:border-amber-500/50 transition">
                     <div class="flex items-center gap-3 text-sm text-gray-500 mb-3">
-                        <span class="px-2 py-1 rounded bg-amber-500/20 text-amber-300">Trading</span>
-                        <span>May 8, 2026</span>
+                        <span class="px-2 py-1 rounded bg-amber-500/20 text-amber-300">Trading</span><span>May 8, 2026</span><span>·</span><span>10 min</span>
                     </div>
                     <h3 class="text-2xl font-bold mb-3">Por Qué el 95% de los Expert Advisors Pierden Dinero</h3>
-                    <p class="text-gray-400 mb-4">Overfitting, gestión de riesgo ausente y expectativas irreales: los 3 killers de EAs rentables. Datos reales y cómo construir uno que funcione.</p>
+                    <p class="text-gray-400 mb-4">Overfitting, gestión de riesgo ausente y expectativas irreales: los 3 killers de EAs rentables.</p>
                     <a href="/posts/ea-fail-guide.html" class="text-amber-400 hover:text-amber-300 font-medium">Read more →</a>
                 </article>
 
-                <article class="glass rounded-xl p-8 hover:border-zoo-500/50 transition">
+                <article id="trading" class="glass rounded-xl p-8 hover:border-purple-500/50 transition">
                     <div class="flex items-center gap-3 text-sm text-gray-500 mb-3">
-                        <span class="px-2 py-1 rounded bg-zoo-500/20 text-zoo-300">AI</span>
-                        <span>Coming Soon</span>
+                        <span class="px-2 py-1 rounded bg-purple-500/20 text-purple-300">Trading</span><span>May 8, 2026</span><span>·</span><span>15 min</span>
                     </div>
-                    <h3 class="text-2xl font-bold mb-3">How We Built an AI CEO That Works 24/7</h3>
-                    <p class="text-gray-400 mb-4">The complete architecture behind Felix — an autonomous AI CEO managing 50+ specialist agents, generating revenue, and running a company without human intervention.</p>
-                    <a href="#" class="text-zoo-400 hover:text-zoo-300 font-medium">Read more →</a>
+                    <h3 class="text-2xl font-bold mb-3">Cómo construimos un Trading Platform completo con IA</h3>
+                    <p class="text-gray-400 mb-4">Arquitectura real, backtesting engine, señales IA, gestión de riesgo y lecciones aprendidas.</p>
+                    <a href="/posts/trading-platform-ia-guide.html" class="text-purple-400 hover:text-purple-300 font-medium">Read more →</a>
                 </article>
 
-                <article class="glass rounded-xl p-8 hover:border-purple-500/50 transition">
-                    <div class="flex items-center gap-3 text-sm text-gray-500 mb-3">
-                        <span class="px-2 py-1 rounded bg-purple-500/20 text-purple-300">Trading</span>
-                        <span>Coming Soon</span>
-                    </div>
-                    <h3 class="text-2xl font-bold mb-3">Why Most Trading Strategies Fail (And How to Fix Them)</h3>
-                    <p class="text-gray-400 mb-4">Overfitting, look-ahead bias, and survivorship bias — the three killers of profitable trading systems. Here's how we build EAs that actually work.</p>
-                    <a href="#" class="text-purple-400 hover:text-purple-300 font-medium">Read more →</a>
-                </article>
-
-                <article class="glass rounded-xl p-8 hover:border-cyan-500/50 transition">
-                    <div class="flex items-center gap-3 text-sm text-gray-500 mb-3">
-                        <span class="px-2 py-1 rounded bg-cyan-500/20 text-cyan-300">Dev</span>
-                        <span>Coming Soon</span>
-                    </div>
-                    <h3 class="text-2xl font-bold mb-3">Building a Full Trading Platform with Next.js and TradingView</h3>
-                    <p class="text-gray-400 mb-4">Technical deep dive into building FX Replay — a complete backtesting platform with real-time charts, Yahoo Finance data, and AI-powered analysis.</p>
-                    <a href="#" class="text-cyan-400 hover:text-cyan-300 font-medium">Read more →</a>
-                </article>
             </div>
-
-            <!-- Newsletter CTA -->
             <div class="mt-16 glass rounded-2xl p-12 text-center">
                 <h2 class="text-3xl font-bold mb-4">Stay in the <span class="text-gradient">Loop</span></h2>
-                <p class="text-gray-400 mb-8">Get weekly insights on AI, trading, and building autonomous systems.</p>
+                <p class="text-gray-400 mb-8">Weekly insights on AI, trading, and autonomous systems.</p>
                 <form class="flex flex-col sm:flex-row gap-4 max-w-md mx-auto">
                     <input type="email" placeholder="your@email.com" class="flex-1 px-4 py-3 rounded-full bg-white/10 border border-white/20 focus:border-zoo-500 focus:outline-none">
                     <button type="submit" class="px-6 py-3 rounded-full bg-gradient-to-r from-zoo-500 to-purple-600 hover:from-zoo-600 hover:to-purple-700 transition font-bold">Subscribe</button>
@@ -146,7 +90,6 @@
             </div>
         </div>
     </main>
-
     <footer class="py-12 border-t border-white/10">
         <div class="max-w-5xl mx-auto px-6 text-center text-gray-500 text-sm">
             <p>© 2026 ZOO. All rights reserved. | <a href="https://zoo.dev" class="text-zoo-400 hover:text-zoo-300">zoo.dev</a></p>
