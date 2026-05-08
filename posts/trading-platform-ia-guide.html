@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cómo construimos un Trading Platform completo con IA | ZOO Blog</title>
+    <meta name="description" content="Arquitectura real, backtesting engine, señales IA, gestión de riesgo y lecciones aprendidas construyendo un sistema de trading algorítmico en producción.">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        zoo: { 50: '#fdf2f8', 100: '#fce7f3', 200: '#fbcfe8', 300: '#f9a8d4', 400: '#f472b6', 500: '#ec4899', 600: '#db2777', 700: '#be185d', 800: '#9d174d', 900: '#831843' }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .glass { background: rgba(255,255,255,0.05); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.1); }
+        .text-gradient { background: linear-gradient(135deg, #ec4899, #8b5cf6, #06b6d4); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .prose h2 { font-size: 1.5rem; font-weight: 700; margin-top: 2rem; margin-bottom: 1rem; }
+        .prose h3 { font-size: 1.25rem; font-weight: 600; margin-top: 1.5rem; margin-bottom: 0.75rem; }
+        .prose p { color: #9ca3af; margin-bottom: 1rem; line-height: 1.75; }
+        .prose ul { color: #9ca3af; margin-bottom: 1rem; padding-left: 1.5rem; list-style: disc; }
+        .prose li { margin-bottom: 0.5rem; }
+        .prose code { background: rgba(255,255,255,0.1); padding: 0.125rem 0.375rem; border-radius: 0.25rem; font-size: 0.875rem; color: #f9a8d4; }
+        .prose pre { background: rgba(0,0,0,0.3); padding: 1rem; border-radius: 0.5rem; overflow-x: auto; margin-bottom: 1rem; }
+        .prose pre code { background: none; padding: 0; }
+        .prose strong { color: #e5e7eb; }
+        .prose hr { border-color: rgba(255,255,255,0.1); margin: 2rem 0; }
+        .prose table { width: 100%; border-collapse: collapse; margin-bottom: 1rem; }
+        .prose th, .prose td { border: 1px solid rgba(255,255,255,0.1); padding: 0.5rem 0.75rem; text-align: left; font-size: 0.875rem; }
+        .prose th { color: #e5e7eb; background: rgba(255,255,255,0.05); }
+        .prose td { color: #9ca3af; }
+        .prose a { color: #f472b6; }
+        .prose a:hover { color: #f9a8d4; }
+        .prose blockquote { border-left: 3px solid #ec4899; padding-left: 1rem; color: #d1d5db; margin-bottom: 1rem; }
+    </style>
+</head>
+<body class="bg-gray-950 text-white min-h-screen">
+    <nav class="fixed top-0 left-0 right-0 z-50 glass">
+        <div class="max-w-5xl mx-auto px-6 py-4 flex items-center justify-between">
+            <a href="/" class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-zoo-500 to-purple-600 flex items-center justify-center text-sm font-bold">Z</div>
+                <span class="font-bold">ZOO Blog</span>
+            </a>
+            <div class="flex items-center gap-6 text-sm">
+                <a href="/ai" class="text-gray-400 hover:text-white transition">AI</a>
+                <a href="/trading" class="text-gray-400 hover:text-white transition">Trading</a>
+                <a href="/dev" class="text-gray-400 hover:text-white transition">Dev</a>
+                <a href="/business" class="text-gray-400 hover:text-white transition">Business</a>
+                <a href="https://zoo.dev" class="text-zoo-400 hover:text-zoo-300 transition">zoo.dev</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="pt-24 pb-16">
+        <div class="max-w-3xl mx-auto px-6">
+            <article>
+                <div class="flex items-center gap-3 text-sm text-gray-500 mb-4">
+                    <span class="px-2 py-1 rounded bg-purple-500/20 text-purple-300">Trading</span>
+                    <span>May 8, 2026</span>
+                    <span>·</span>
+                    <span>15 min read</span>
+                </div>
+                <h1 class="text-4xl font-black mb-6">Cómo construimos un Trading Platform completo con IA</h1>
+                <p class="text-xl text-gray-400 mb-8">Arquitectura real, backtesting engine, señales IA, gestión de riesgo y lecciones aprendidas construyendo un sistema de trading algorítmico en producción.</p>
+
+                <div class="prose">
+                    <h2>Por qué construir un trading platform (y por qué es tan difícil)</h2>
+                    <p>La mayoría de personas que intentan automatizar trading terminan con un script de Python que descarga datos, calcula una media móvil y envía emails. Eso no es un trading platform. Es un juguete.</p>
+                    <p>Un trading platform real necesita:</p>
+                    <ul>
+                        <li><strong>Backtesting engine</strong> — probar estrategias contra años de datos históricos</li>
+                        <li><strong>Ejecución automatizada</strong> — enviar órdenes a un broker en tiempo real</li>
+                        <li><strong>Gestión de riesgo</strong> — position sizing, stop loss, max drawdown</li>
+                        <li><strong>Señales de entrada/salida</strong> — el cerebro algorítmico</li>
+                        <li><strong>Monitoring</strong> — saber qué está haciendo tu dinero mientras duermes</li>
+                        <li><strong>Analytics</strong> — 20+ métricas de rendimiento (Sharpe, Sortino, Calmar, etc.)</li>
+                    </ul>
+                    <p>Hacer todo eso bien es un proyecto de ingeniería serio. Y hacerlo con señales generadas por IA lo es aún más. Nosotros lo construimos. Y ahora te contamos cómo.</p>
+
+                    <hr>
+
+                    <h2>Arquitectura elegida</h2>
+                    <h3>Stack técnico</h3>
+                    <pre><code>Frontend:    Next.js 14 + TypeScript + Tailwind CSS + Lightweight Charts
+Backend:     Node.js + Express + WebSocket
+Database:    PostgreSQL (Neon) + Redis para caché
+IA:          Python + OpenAI API + modelos custom
+Trading:     MetaTrader 5 + Expert Advisors (MQL5)
+Deploy:      Vercel (frontend) + Railway (backend)</code></pre>
+
+                    <h3>Diagrama de flujo simplificado</h3>
+                    <pre><code>Datos históricos → Backtesting Engine → Estrategia validada
+                                            ↓
+Datos en tiempo real → Motor de Señales IA → Señal de trading
+                                                    ↓
+                                        Gestor de Riesgo (OK?)
+                                                    ↓
+                                        Ejecución MT5 (orden)
+                                                    ↓
+                                        Monitoring Dashboard</code></pre>
+
+                    <h3>Por qué este stack</h3>
+                    <p><strong>Next.js para el frontend:</strong> Necesitábamos gráficos de velas en tiempo real, actualización sin recarga y SEO. Next.js con React Server Components nos dio todo.</p>
+                    <p><strong>Python para la IA:</strong> No hay discusión. El ecosistema de ML (pandas, numpy, scikit-learn, PyTorch) sigue siendo muy superior. Las señales de trading van en Python, el resto en TypeScript.</p>
+                    <p><strong>PostgreSQL para datos financieros:</strong> Los datos de mercado tienen estructura clara (OHLCV, timestamps, symbols). SQL relacional es perfecto para esto. Redis para las señales en tiempo real que necesitan latencia baja.</p>
+                    <p><strong>MT5 para ejecución:</strong> MetaTrader 5 domina el mercado retail de FX. Los Expert Advisors permiten ejecución automatizada con control total.</p>
+
+                    <hr>
+
+                    <h2>El Backtesting Engine: el corazón del sistema</h2>
+                    <p>El backtester es el componente más crítico. Si tu backtesting no es fiel a la realidad, tus estrategias fracasarán en producción. Sin excepciones.</p>
+
+                    <h3>Qué simula nuestro backtester</h3>
+                    <ul>
+                        <li><strong>Datos OHLCV</strong> de 10+ años, múltiples símbolos y timeframes</li>
+                        <li><strong>Spread y comisiones</strong> realistas por broker</li>
+                        <li><strong>Slippage</strong> — el precio de ejecución no es el precio del gráfico</li>
+                        <li><strong>Position sizing</strong> — fijo, porcentaje de equity, Kelly criterion</li>
+                        <li><strong>Margin calls</strong> — si tu estrategia usa apalancamiento, el backtester debe saber cuándo te liquidan</li>
+                    </ul>
+
+                    <h3>Las 20+ métricas que calculamos</h3>
+                    <table>
+                        <tr><th>Métrica</th><th>Qué mide</th><th>Buen valor</th></tr>
+                        <tr><td>Total Return</td><td>Rentabilidad total</td><td>&gt; 30% anual</td></tr>
+                        <tr><td>Sharpe Ratio</td><td>Retorno ajustado por riesgo</td><td>&gt; 1.5</td></tr>
+                        <tr><td>Sortino Ratio</td><td>Solo riesgo negativo</td><td>&gt; 2.0</td></tr>
+                        <tr><td>Max Drawdown</td><td>Mayor pérdida desde pico</td><td>&lt; 20%</td></tr>
+                        <tr><td>Calmar Ratio</td><td>Return / Max Drawdown</td><td>&gt; 2.0</td></tr>
+                        <tr><td>Win Rate</td><td>% trades ganadores</td><td>&gt; 55%</td></tr>
+                        <tr><td>Profit Factor</td><td>Ganancias / Pérdidas</td><td>&gt; 1.5</td></tr>
+                        <tr><td>Expectancy</td><td>Esperanza matemática por trade</td><td>&gt; 0</td></tr>
+                    </table>
+
+                    <h3>El error que nadie te dice sobre backtesting</h3>
+                    <p><strong>Look-ahead bias:</strong> usar datos del futuro en el pasado. Sucede cuando normalizas datos usando todo el dataset antes de dividir en train/test.</p>
+                    <p><strong>Overfitting:</strong> optimizar tanto que la estrategia solo funciona en datos históricos. Usamos Walk-Forward Analysis obligatorio: optimizas en ventana A, validas en ventana B (datos nunca vistos).</p>
+                    <p><strong>Survivorship bias:</strong> probar solo contra símbolos que aún existen. Si un par fue deslistado, no estará en tu dataset y tu backtester será demasiado optimista.</p>
+
+                    <hr>
+
+                    <h2>Señales de IA: donde la magia sucede</h2>
+                    <p>Un trading platform sin señales es solo un dashboard bonito. Las señales son el cerebro.</p>
+
+                    <h3>Nuestro enfoque: ensemble de indicadores + ML</h3>
+                    <p>No confiamos en un solo indicador. Usamos un ensemble:</p>
+                    <ol>
+                        <li><strong>ICT concepts</strong> — order blocks, fair value gaps, liquidity sweeps</li>
+                        <li><strong>Indicadores clásicos</strong> — RSI, MACD, ATR, Bollinger Bands, Volume Profile</li>
+                        <li><strong>Modelos ML</strong> — Random Forest para clasificación de dirección, LSTM para predicción de volatilidad</li>
+                    </ol>
+
+                    <h3>Cómo generamos la señal final</h3>
+                    <pre><code>signals = {
+    'ict': ict_score(order_blocks, fvgs, liquidity),  # -1 to 1
+    'classic': indicator_score(rsi, macd, atr),       # -1 to 1
+    'ml': model_predict(features),                     # -1 to 1
+}
+final = weighted_ensemble(signals, weights=[0.4, 0.3, 0.3])
+if abs(final) > threshold and risk_check():
+    execute_signal(final)</code></pre>
+
+                    <hr>
+
+                    <h2>Gestión de riesgo: lo que separa a los vivos de los muertos</h2>
+                    <p>La gestión de riesgo NO es opcional. Es lo que hace la diferencia entre un trader que sobrevive 5 años y uno que explota la cuenta en 3 meses.</p>
+
+                    <h3>Nuestras reglas de riesgo</h3>
+                    <ol>
+                        <li><strong>Nunca arriesgar más del 2% del capital por trade</strong></li>
+                        <li><strong>Max drawdown diario del 5%</strong> — si lo alcanzas, para hoy</li>
+                        <li><strong>Max posiciones abiertas: 3</strong> — la concentración excesiva mata</li>
+                        <li><strong>Stop loss obligatorio</strong> — cada trade sin SL es una ruleta rusa</li>
+                        <li><strong>Take profit basado en ATR</strong> — fixed TP es para amateurs</li>
+                    </ol>
+
+                    <h3>Position sizing con Kelly Criterion</h3>
+                    <pre><code>Kelly % = W - (1 - W) / R
+
+Donde:
+W = win rate histórica
+R = ratio promedio ganancia/pérdida
+
+Ejemplo: Win rate 60%, R = 2:1
+Kelly % = 0.60 - 0.40/2 = 0.40 = 40%
+
+Usamos Half-Kelly (20%) para ser conservadores.</code></pre>
+
+                    <hr>
+
+                    <h2>Lecciones aprendidas (las que dolió aprender)</h2>
+
+                    <h3>1. El backtesting perfecto no existe</h3>
+                    <p>Siempre hay diferencias entre backtesting y producción. El mercado real tiene slippage, rechazos de órdenes y gaps que el backtester no modela perfectamente. Espera un 20-30% de degradación en producción.</p>
+
+                    <h3>2. La IA no es una bola de cristal</h3>
+                    <p>Los modelos ML pueden encontrar patrones en datos históricos que no se repiten. El mercado cambia. Lo que funcionó en 2023 puede no funcionar en 2026. Re-entrena modelos regularmente.</p>
+
+                    <h3>3. La infraestructura importa más de lo que crees</h3>
+                    <p>Un trading platform necesita uptime. Si tu servidor se cae durante un evento de volatilidad (NFP, FOMC), puedes perder dinero real. Usa monitoring, alertas y failover.</p>
+
+                    <h3>4. Empieza simple, itera rápido</h3>
+                    <p>Nuestra primera versión solo tenía backtesting + un indicador. Nada de IA, nada de MT5. Validamos el concepto, después añadimos complejidad.</p>
+
+                    <h3>5. El mayor riesgo es el emocional</h3>
+                    <p>Incluso con un sistema automatizado, la tentación de "intervenir" es real. La disciplina es el edge.</p>
+
+                    <hr>
+
+                    <h2>Cómo construir tu propio trading platform</h2>
+                    <p>Si quieres construir algo similar, aquí va el roadmap:</p>
+                    <ul>
+                        <li><strong>Fase 1: Backtesting (2-3 semanas)</strong> — Datos históricos, backtester básico en Python, métricas de rendimiento</li>
+                        <li><strong>Fase 2: Señales (2-3 semanas)</strong> — Indicadores técnicos, modelo ML, sistema de ensemble</li>
+                        <li><strong>Fase 3: Frontend (2-3 semanas)</strong> — Next.js + Lightweight Charts, dashboard, alertas</li>
+                        <li><strong>Fase 4: Ejecución (3-4 semanas)</strong> — MT5 Expert Advisor, gestión de órdenes, reconexión</li>
+                        <li><strong>Fase 5: Producción (ongoing)</strong> — Monitoring 24/7, re-entrenamiento mensual, optimización</li>
+                    </ul>
+                    <p><strong>Total estimado: 10-16 semanas con un equipo de 2-3 personas.</strong></p>
+
+                    <hr>
+
+                    <h2>¿Necesitas ayuda para construir el tuyo?</h2>
+                    <p>En ZOO hemos construido trading platforms completos con IA, backtesting engines y sistemas de ejecución automatizada. Si estás construyendo algo en este espacio y necesitas ingeniería especializada, hablemos.</p>
+                    <p>No somos una agencia genérica. Somos ingenieros que entienden trading, IA y sistemas de producción.</p>
+                    <p><strong>Contacto:</strong> <a href="mailto:crazycompanyincmail@gmail.com">crazycompanyincmail@gmail.com</a></p>
+                </div>
+            </article>
+
+            <div class="mt-12 glass rounded-2xl p-8 text-center">
+                <h3 class="text-xl font-bold mb-2">¿Te resultó útil?</h3>
+                <p class="text-gray-400 mb-4">Compártelo con alguien que esté construyendo en el espacio de trading algorítmico.</p>
+                <a href="/" class="text-zoo-400 hover:text-zoo-300 font-medium">← Volver al blog</a>
+            </div>
+        </div>
+    </main>
+
+    <footer class="py-12 border-t border-white/10">
+        <div class="max-w-5xl mx-auto px-6 text-center text-gray-500 text-sm">
+            <p>© 2026 ZOO. All rights reserved. | <a href="https://zoo.dev" class="text-zoo-400 hover:text-zoo-300">zoo.dev</a></p>
+        </div>
+    </footer>
+</body>
+</html>
