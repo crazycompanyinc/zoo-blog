@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>How to Build a Backtesting Engine in Python: The Complete Guide | ZOO Blog</title>
+<meta name="description" content="Production-ready Python code for building a backtesting engine: data layer, strategy engine, execution simulator with slippage, performance metrics, and walk-forward analysis.">
+<meta name="keywords" content="backtesting engine python, algorithmic trading backtest, trading strategy python, walk-forward analysis, backtesting framework, quantitative trading">
+<link rel="canonical" href="https://zootechnologies.com/posts/backtesting-engine-python-guide.html">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0a0a0f;--surface:#12121a;--border:#1e1e2e;--text:#e4e4e7;--muted:#71717a;--accent:#3B82F6;--accent-glow:rgba(59,130,246,.15);--green:#22c55e;--yellow:#eab308;--red:#ef4444;--purple:#8b5cf6}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);line-height:1.7;-webkit-font-smoothing:antialiased}
+.container{max-width:768px;margin:0 auto;padding:0 24px}
+header{padding:32px 0 24px;border-bottom:1px solid var(--border)}
+header .logo{color:var(--accent);font-weight:800;font-size:20px;text-decoration:none;letter-spacing:-.5px}
+.hero{padding:56px 0 40px;border-bottom:1px solid var(--border)}
+.hero .label{display:inline-block;background:var(--accent-glow);color:var(--accent);font-size:12px;font-weight:600;padding:4px 12px;border-radius:999px;text-transform:uppercase;letter-spacing:.8px;margin-bottom:20px}
+.hero h1{font-size:clamp(28px,5vw,44px);font-weight:800;line-height:1.15;letter-spacing:-1.5px;margin-bottom:16px}
+.hero h1 em{color:var(--accent);font-style:normal}
+.hero p{color:var(--muted);font-size:18px;max-width:560px}
+.meta{display:flex;gap:24px;margin-top:24px;font-size:14px;color:var(--muted)}
+.meta span{display:flex;gap:6px;align-items:center}
+article{padding:48px 0 80px}
+article h2{font-size:24px;font-weight:700;letter-spacing:-.5px;margin:48px 0 16px}
+article h3{font-size:18px;font-weight:600;margin:32px 0 12px;color:var(--accent)}
+article p{margin-bottom:16px;color:var(--text)}
+article strong{color:var(--text)}
+article ul,article ol{margin-bottom:16px;padding-left:24px}
+article li{margin-bottom:8px;color:var(--muted)}
+article a{color:var(--accent);text-decoration:none;border-bottom:1px solid transparent;transition:border-color .2s}
+article a:hover{border-bottom-color:var(--accent)}
+article hr{border:none;border-top:1px solid var(--border);margin:48px 0}
+article blockquote{border-left:3px solid var(--accent);padding-left:20px;margin:24px 0;color:var(--muted);font-style:italic}
+pre{background:rgba(0,0,0,.4);border:1px solid var(--border);border-radius:8px;padding:20px;overflow-x:auto;margin:24px 0;font-size:14px;line-height:1.6}
+code{font-family:'JetBrains Mono',monospace}
+p code,li code{background:rgba(59,130,246,.1);color:var(--accent);padding:2px 6px;border-radius:4px;font-size:14px}
+pre code{background:none;padding:0;color:var(--text)}
+.toc{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:24px 32px;margin:32px 0}
+.toc h3{margin-top:0;color:var(--text)}
+.toc ol{margin-bottom:0}
+.toc li{margin-bottom:4px}
+.toc a{color:var(--muted);border:none}
+.toc a:hover{color:var(--accent)}
+.metrics-box{background:linear-gradient(135deg,rgba(59,130,246,.1),rgba(139,92,246,.1));border:1px solid var(--border);border-radius:12px;padding:32px;margin:32px 0;font-family:'JetBrains Mono',monospace;font-size:14px;white-space:pre-wrap}
+.cta-box{background:linear-gradient(135deg,rgba(59,130,246,.15),rgba(139,92,246,.15));border:1px solid rgba(59,130,246,.3);border-radius:16px;padding:40px;text-align:center;margin:48px 0}
+.cta-box h3{color:var(--text);font-size:24px;margin-bottom:12px}
+.cta-box p{color:var(--muted);margin-bottom:24px}
+.cta-box .btn{display:inline-block;background:var(--accent);color:#fff;padding:14px 32px;border-radius:8px;font-weight:700;text-decoration:none;font-size:16px;transition:opacity .2s;border:none}
+.cta-box .btn:hover{opacity:.9}
+.arch-diagram{background:rgba(0,0,0,.3);border:1px solid var(--border);border-radius:8px;padding:24px;margin:24px 0;font-family:'JetBrains Mono',monospace;font-size:13px;white-space:pre;color:var(--muted);overflow-x:auto}
+.pitfall{background:rgba(239,68,68,.05);border:1px solid rgba(239,68,68,.2);border-radius:8px;padding:16px 20px;margin:16px 0}
+.pitfall strong{color:var(--red)}
+.pitfall-title{color:var(--red);font-weight:700;margin-bottom:8px}
+</style>
+</head>
+<body>
+
+<header>
+<div class="container">
+<a href="/" class="logo">ZOO Blog</a>
+</div>
+</header>
+
+<section class="hero">
+<div class="container">
+<div class="label">Trading & Python — 18 min read</div>
+<h1>How to Build a <em>Backtesting Engine</em> in Python: The Complete Guide</h1>
+<p>Production-ready Python code for data layers, strategy engines, execution simulators with slippage, performance metrics, and walk-forward analysis.</p>
+<div class="meta">
+<span>📅 May 8, 2026</span>
+<span>📊 Trading</span>
+<span>🐍 Python</span>
+<span>⏱ 18 min</span>
+</div>
+</div>
+</section>
+
+<article>
+<div class="container">
+
+<h2>Why Backtesting Is the Difference Between Winners and Losers</h2>
+
+<p>Here's a number that should terrify you: <strong>95% of retail algorithmic traders lose money.</strong> Not because their strategies are bad — but because they never properly tested them before risking real capital.</p>
+
+<p>Backtesting is the process of simulating a trading strategy against historical data to see how it <em>would have</em> performed. It's the single most important step between "I have an idea" and "I'm putting money on the line."</p>
+
+<p>At ZOO, we've built backtesting systems for trading platforms that process millions of data points. In this guide, we're giving you the exact architecture — with production-ready Python code you can run today.</p>
+
+<div class="toc">
+<h3>Table of Contents</h3>
+<ol>
+<li><a href="#types">The 3 Types of Backtesting</a></li>
+<li><a href="#architecture">Architecture Overview</a></li>
+<li><a href="#data">Building the Data Layer</a></li>
+<li><a href="#strategy">The Strategy Engine</a></li>
+<li><a href="#execution">The Execution Simulator</a></li>
+<li><a href="#metrics">Performance Metrics That Actually Matter</a></li>
+<li><a href="#walkforward">Walk-Forward Analysis (Avoiding Overfitting)</a></li>
+<li><a href="#complete">Complete Working Example</a></li>
+<li><a href="#next">Next Steps: From Backtest to Live Trading</a></li>
+</ol>
+</div>
+
+<hr>
+
+<a name="types"></a>
+<h2>The 3 Types of Backtesting</h2>
+
+<h3>1. Vectorized Backtesting (Fast, Simplest)</h3>
+<p>Best for: Quick strategy prototyping, simple indicators.</p>
+
+<pre><code>import pandas as pd
+import numpy as np
+
+def vectorized_sma_backtest(df, fast=10, slow=50):
+    """Simple Moving Average Crossover — vectorized."""
+    df = df.copy()
+    df['fast_ma'] = df['close'].rolling(fast).mean()
+    df['slow_ma'] = df['close'].rolling(slow).mean()
+    
+    df['signal'] = 0
+    df.loc[df['fast_ma'] > df['slow_ma'], 'signal'] = 1
+    df.loc[df['fast_ma'] < df['slow_ma'], 'signal'] = -1
+    
+    df['market_return'] = df['close'].pct_change()
+    df['strategy_return'] = df['signal'].shift(1) * df['market_return']
+    
+    df['cumulative_market'] = (1 + df['market_return']).cumprod()
+    df['cumulative_strategy'] = (1 + df['strategy_return']).cumprod()
+    
+    return df</code></pre>
+
+<p><strong>Pros:</strong> Runs in milliseconds on years of data. <strong>Cons:</strong> Assumes instant execution at close prices, no slippage, no transaction costs.</p>
+
+<h3>2. Event-Driven Backtesting (Realistic)</h3>
+<p>Best for: Production-grade backtesting, complex order types, realistic fills. This is what we use at ZOO. Every bar triggers an event. The strategy reacts. The execution engine simulates fills.</p>
+
+<h3>3. Walk-Forward Analysis (Robust)</h3>
+<p>Best for: Validating that your strategy isn't just overfitted to history. Split data into chunks. Train on chunk 1, test on chunk 2. Roll forward. Repeat.</p>
+
+<hr>
+
+<a name="architecture"></a>
+<h2>Architecture Overview</h2>
+
+<div class="arch-diagram">
+┌─────────────────────────────────────────────────────┐
+│                  BACKTESTING ENGINE                   │
+│                                                       │
+│  ┌──────────┐   ┌──────────┐   ┌──────────────────┐ │
+│  │  Data     │──▶│ Strategy │──▶│  Execution       │ │
+│  │  Layer    │   │  Engine  │   │  Simulator       │ │
+│  └──────────┘   └──────────┘   └────────┬─────────┘ │
+│                                          │           │
+│  ┌──────────┐   ┌──────────┐            │           │
+│  │ Portfolio│◀──│  Risk    │◀───────────┘           │
+│  │ Manager  │   │  Manager │                        │
+│  └────┬─────┘   └──────────┘                        │
+│       │                                              │
+│  ┌────▼─────┐                                        │
+│  │ Metrics  │                                        │
+│  │ Engine   │                                        │
+│  └──────────┘                                        │
+└─────────────────────────────────────────────────────┘</div>
+
+<p>Each component is independent. Swap data sources, change strategies, adjust risk rules — without touching the rest.</p>
+
+<hr>
+
+<a name="data"></a>
+<h2>Building the Data Layer</h2>
+
+<p>The data layer fetches, cleans, and serves price data. It should handle multiple timeframes and instruments.</p>
+
+<pre><code>from dataclasses import dataclass, field
+from typing import List, Optional
+from datetime import datetime
+import pandas as pd
+import numpy as np
+
+@dataclass
+class OHLCV:
+    timestamp: datetime
+    open: float
+    high: float
+    low: float
+    close: float
+    volume: float
+
+@dataclass
+class DataFeed:
+    symbol: str
+    timeframe: str
+    data: pd.DataFrame = field(default_factory=pd.DataFrame)
+    
+    @classmethod
+    def from_dataframe(cls, df, symbol, timeframe):
+        df = df.copy()
+        df = cls._validate_and_clean(df)
+        return cls(symbol=symbol, timeframe=timeframe, data=df)
+    
+    @staticmethod
+    def _validate_and_clean(df):
+        required = ['timestamp','open','high','low','close','volume']
+        for col in required:
+            if col not in df.columns:
+                raise ValueError(f"Missing: {col}")
+        df = df.drop_duplicates(subset='timestamp')
+        df = df.set_index('timestamp')
+        df = df.resample('1min').ffill(limit=3)
+        df = df.reset_index()
+        df = df[df['volume'] > 0]
+        df = df[df['high'] >= df['low']]
+        return df.reset_index(drop=True)
+    
+    def __iter__(self):
+        for idx, row in self.data.iterrows():
+            yield OHLCV(
+                timestamp=row['timestamp'], open=row['open'],
+                high=row['high'], low=row['low'],
+                close=row['close'], volume=row['volume']
+            )</code></pre>
+
+<hr>
+
+<a name="strategy"></a>
+<h2>The Strategy Engine</h2>
+
+<p>A strategy is a function that receives market data and emits signals. Keep it pure — no side effects.</p>
+
+<pre><code>from enum import Enum
+from dataclasses import dataclass
+
+class SignalType(Enum):
+    BUY = "buy"
+    SELL = "sell"
+    CLOSE = "close"
+    NONE = "none"
+
+@dataclass
+class Signal:
+    type: SignalType
+    price: float
+    stop_loss: Optional[float] = None
+    take_profit: Optional[float] = None
+    size: float = 1.0
+    reason: str = ""
+
+class Strategy:
+    def __init__(self, params=None):
+        self.params = params or {}
+    
+    def on_bar(self, bar, history) -> Signal:
+        raise NotImplementedError
+
+class MeanReversionStrategy(Strategy):
+    """Bollinger Band mean reversion."""
+    def __init__(self, period=20, num_std=2.0):
+        super().__init__()
+        self.period = period
+        self.num_std = num_std
+    
+    def on_bar(self, bar, history):
+        if len(history) &lt; self.period:
+            return Signal(type=SignalType.NONE, price=bar.close)
+        
+        closes = [h.close for h in history[-self.period:]]
+        sma = np.mean(closes)
+        std = np.std(closes)
+        lower = sma - self.num_std * std
+        
+        if bar.close &lt;= lower:
+            return Signal(
+                type=SignalType.BUY, price=bar.close,
+                stop_loss=bar.close - 2 * std,
+                take_profit=sma, size=0.02,
+                reason=f"Price below lower BB"
+            )
+        if bar.close &gt;= sma:
+            return Signal(type=SignalType.SELL, price=bar.close)
+        
+        return Signal(type=SignalType.NONE, price=bar.close)</code></pre>
+
+<hr>
+
+<a name="execution"></a>
+<h2>The Execution Simulator</h2>
+
+<p>This is where most amateur backtests fail. <strong>Realistic execution matters.</strong></p>
+
+<pre><code>@dataclass
+class Fill:
+    timestamp: datetime
+    side: str
+    price: float
+    quantity: float
+    commission: float
+    slippage: float
+
+class ExecutionSimulator:
+    def __init__(self, commission_rate=0.001, 
+                 slippage_model='volatility', slippage_value=0.5):
+        self.commission_rate = commission_rate
+        self.slippage_model = slippage_model
+        self.slippage_value = slippage_value
+        self.fills = []
+        self.current_position = None
+    
+    def calculate_slippage(self, bar, side):
+        if self.slippage_model == 'volatility':
+            bar_range = (bar.high - bar.low) / bar.close
+            return bar.close * bar_range * self.slippage_value
+        return 0.0
+    
+    def execute_signal(self, signal, bar):
+        if signal.type == SignalType.NONE:
+            return None
+        slippage = self.calculate_slippage(bar, signal.type.value)
+        fill_price = bar.close + slippage if signal.type == SignalType.BUY else bar.close - slippage
+        commission = fill_price * signal.size * self.commission_rate
+        
+        fill = Fill(
+            timestamp=bar.timestamp, side=signal.type.value,
+            price=fill_price, quantity=signal.size,
+            commission=commission, slippage=slippage
+        )
+        self.fills.append(fill)
+        return fill
+    
+    def check_stops(self, bar):
+        """Check if SL/TP was hit during this bar."""
+        if self.current_position is None:
+            return None
+        pos = self.current_position
+        if pos.side == 'long':
+            if pos.stop_loss and bar.low &lt;= pos.stop_loss:
+                # Execute stop loss fill
+                self.current_position = None
+                return True
+            if pos.take_profit and bar.high &gt;= pos.take_profit:
+                self.current_position = None
+                return True
+        return None</code></pre>
+
+<blockquote><strong>Key insight:</strong> In backtesting, you CAN always buy at the close price. In reality, you can't. Slippage kills more strategies than bad signals.</blockquote>
+
+<hr>
+
+<a name="metrics"></a>
+<h2>Performance Metrics That Actually Matter</h2>
+
+<p>Most people only look at total return. That's dangerously incomplete.</p>
+
+<pre><code>@dataclass
+class BacktestMetrics:
+    total_return: float
+    annualized_return: float
+    sharpe_ratio: float
+    sortino_ratio: float
+    max_drawdown: float
+    max_drawdown_duration: int
+    total_trades: int
+    win_rate: float
+    avg_win: float
+    avg_loss: float
+    profit_factor: float
+    total_commission: float
+    total_slippage: float
+    cost_drag: float
+
+class MetricsCalculator:
+    @staticmethod
+    def calculate(equity_curve, fills, bars_count, risk_free_rate=0.05):
+        equity = np.array(equity_curve)
+        returns = np.diff(equity) / equity[:-1]
+        returns = returns[returns != 0]
+        
+        total_return = (equity[-1] / equity[0]) - 1
+        n_years = bars_count / 252
+        annualized = (1 + total_return) ** (1 / max(n_years, 0.01)) - 1
+        
+        excess = returns - (risk_free_rate / 252)
+        sharpe = np.mean(excess) / (np.std(returns) + 1e-10) * np.sqrt(252)
+        
+        downside = returns[returns &lt; 0]
+        downside_std = np.std(downside) if len(downside) &gt; 0 else 1e-10
+        sortino = np.mean(excess) / downside_std * np.sqrt(252)
+        
+        peak = np.maximum.accumulate(equity)
+        drawdown = (equity - peak) / peak
+        max_dd = np.min(drawdown)
+        
+        # Trade analysis
+        trades = []
+        for i in range(0, len(fills)-1, 2):
+            pnl = (fills[i+1].price - fills[i].price) * fills[i].quantity
+            pnl -= fills[i].commission + fills[i+1].commission
+            trades.append(pnl)
+        
+        wins = [t for t in trades if t &gt; 0]
+        losses = [t for t in trades if t &lt;= 0]
+        
+        return BacktestMetrics(
+            total_return=total_return,
+            annualized_return=annualized,
+            sharpe_ratio=sharpe, sortino_ratio=sortino,
+            max_drawdown=max_dd, max_drawdown_duration=0,
+            total_trades=len(trades),
+            win_rate=len(wins)/max(len(trades),1),
+            avg_win=np.mean(wins) if wins else 0,
+            avg_loss=np.mean(losses) if losses else 0,
+            profit_factor=abs(sum(wins)/sum(losses)) if losses and sum(losses)!=0 else float('inf'),
+            total_commission=sum(f.commission for f in fills),
+            total_slippage=sum(f.slippage*f.quantity for f in fills),
+            cost_drag=(sum(f.commission for f in fills))/equity[0]
+        )</code></pre>
+
+<hr>
+
+<a name="walkforward"></a>
+<h2>Walk-Forward Analysis: Avoiding Overfitting</h2>
+
+<p>This is the <strong>most important section</strong> of this guide. Overfitting is why 95% of strategies fail in live trading.</p>
+
+<pre><code>class WalkForwardAnalysis:
+    """
+    Split data into in-sample (training) and out-of-sample (testing).
+    Optimize on in-sample, validate on out-of-sample.
+    Roll forward and repeat.
+    """
+    def __init__(self, strategy_class, param_grid, n_splits=5):
+        self.strategy_class = strategy_class
+        self.param_grid = param_grid
+        self.n_splits = n_splits
+    
+    def run(self, data, engine):
+        n = len(data)
+        fold_size = n // self.n_splits
+        results = []
+        
+        for i in range(self.n_splits):
+            test_start = i * fold_size
+            test_end = min((i+1)*fold_size, n)
+            train_end = test_start
+            train_start = max(0, int(train_end - fold_size*0.7/0.3))
+            
+            if train_start &gt;= train_end:
+                continue
+            
+            train = data.iloc[train_start:train_end]
+            test = data.iloc[test_start:test_end]
+            
+            best_params = self._optimize_params(train, engine)
+            strategy = self.strategy_class(**best_params)
+            metrics = engine.run(test, strategy)
+            
+            results.append({'fold': i, 'metrics': metrics})
+            print(f"Fold {i}: Return={metrics.total_return:.2%}, "
+                  f"Sharpe={metrics.sharpe_ratio:.2f}")
+        
+        avg_return = np.mean([r['metrics'].total_return for r in results])
+        avg_sharpe = np.mean([r['metrics'].sharpe_ratio for r in results])
+        print(f"Avg OOS Return: {avg_return:.2%}")
+        print(f"Avg OOS Sharpe: {avg_sharpe:.2f}")
+        return results</code></pre>
+
+<hr>
+
+<a name="complete"></a>
+<h2>Complete Working Example</h2>
+
+<pre><code>import pandas as pd
+import numpy as np
+from datetime import datetime, timedelta
+
+def generate_sample_data(n_bars=5000, start_price=100.0, volatility=0.02):
+    np.random.seed(42)
+    dates = [datetime(2024,1,1) + timedelta(minutes=i) for i in range(n_bars)]
+    prices = [start_price]
+    for i in range(1, n_bars):
+        drift = 0.0001
+        shock = np.random.normal(0, volatility)
+        mr = -0.001 * (prices[-1] - start_price) / start_price
+        prices.append(max(prices[-1] * (1 + drift + shock + mr), 0.01))
+    
+    data = []
+    for date, close in zip(dates, prices):
+        intra = close * volatility * 0.5
+        high = close + abs(np.random.normal(0, intra))
+        low = close - abs(np.random.normal(0, intra))
+        data.append({
+            'timestamp': date, 'open': close,
+            'high': high, 'low': low,
+            'close': close, 'volume': np.random.lognormal(10, 1)
+        })
+    return pd.DataFrame(data)
+
+if __name__ == "__main__":
+    data = generate_sample_data(5000)
+    feed = DataFeed.from_dataframe(data, "SYNTH", "1min")
+    strategy = MeanReversionStrategy(period=20, num_std=2.0)
+    execution = ExecutionSimulator(commission_rate=0.001, slippage_model='volatility')
+    
+    engine = BacktestEngine(feed, strategy, execution, initial_capital=10000)
+    metrics = engine.run()
+    print(metrics)</code></pre>
+
+<hr>
+
+<a name="next"></a>
+<h2>Next Steps: From Backtest to Live Trading</h2>
+
+<p>A profitable backtest is just the beginning. Here's the path to production:</p>
+
+<pre><code>Backtest → Paper Trade → Small Live → Scale → Monitor
+  Weeks      2-4 weeks    1 month    Gradual   Ongoing</code></pre>
+
+<div class="pitfall">
+<div class="pitfall-title">⚠️ Common Pitfall: Overfitting</div>
+<p>Your strategy works perfectly on historical data and fails live. <strong>Solution:</strong> Walk-forward analysis, fewer parameters, simpler strategies.</p>
+</div>
+
+<div class="pitfall">
+<div class="pitfall-title">⚠️ Common Pitfall: Look-Ahead Bias</div>
+<p>Your strategy accidentally uses future data. <strong>Solution:</strong> Never access <code>bar[i+1]</code> in your strategy logic.</p>
+</div>
+
+<div class="pitfall">
+<div class="pitfall-title">⚠️ Common Pitfall: Ignoring Costs</div>
+<p>Slippage and commissions can turn a profitable strategy into a losing one. <strong>Solution:</strong> Always model realistic costs (0.1%+ per round trip).</p>
+</div>
+
+<div class="cta-box">
+<h3>Want Us to Build Your Trading System?</h3>
+<p>At <strong>ZOO</strong>, we build algorithmic trading platforms, backtesting engines, and automated trading systems. Custom backtesting engines, strategy development, live trading infrastructure, AI-powered signal generation.</p>
+<p><strong>Our stack:</strong> Python, C++, Rust, Next.js, PostgreSQL, Redis, Docker, AWS/GCP</p>
+<br>
+<a href="https://zootechnologies.com" class="btn">Get a Free Strategy Audit →</a>
+<p style="margin-top:16px;font-size:14px;color:var(--muted)">Send us your backtest results. We'll tell you in 48 hours if your strategy is ready for live trading.</p>
+</div>
+
+<p><em>This post is part of our <strong>Algorithmic Trading Series</strong>. Next week: "How to Connect Your Backtest to a Live Exchange API" — with real order execution code.</em></p>
+
+<p style="color:var(--muted);font-size:14px;">Last updated: May 8, 2026 | Trading involves risk. Past performance (including backtests) does not guarantee future results.</p>
+
+</div>
+</article>
+
+<footer>
+<div class="container" style="text-align:center;color:var(--muted);font-size:14px;padding:40px 0;border-top:1px solid var(--border)">
+<p>© 2026 ZOO. All rights reserved. | <a href="https://zootechnologies.com" style="color:var(--accent);">zootechnologies.com</a></p>
+</div>
+</footer>
+
+</body>
+</html>
