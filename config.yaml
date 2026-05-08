@@ -1,0 +1,16 @@
+# ZOO Blog — Deploy Config
+
+This blog will be deployed to blog.zoo.dev
+
+## Tech Stack
+Static site generator: Hugo or Astro
+Markdown content
+Tailwind CSS
+Deployed via Vercel
+
+## Content Categories
+1. AI & Agents — AI development, autonomous agents, DSPy, LLMs
+2. Trading — Algorithmic trading, MT5, EAs, backtesting, market analysis
+3. Development — Next.js, React, Node.js, Python, DevOps
+4. Business — Startup lessons, revenue, growth, indie hacking
+5. Tutorials — Step-by-step guides on our products and tools
