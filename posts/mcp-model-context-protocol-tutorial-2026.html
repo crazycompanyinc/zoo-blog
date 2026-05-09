@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MCP Tutorial 2026: How to Build Model Context Protocol Servers for AI Agents | ZOO Blog</title>
+    <meta name="description" content="Complete MCP tutorial 2026: Learn Model Context Protocol from scratch. Build MCP servers for AI agents with Python & TypeScript, real code examples, and production deployment patterns.">
+    <meta name="keywords" content="MCP tutorial, model context protocol, MCP server, AI agent tools, MCP Python, MCP TypeScript, Claude MCP, LLM tool calling, agent protocol 2026">
+    <link rel="canonical" href="https://zoo.dev/posts/mcp-model-context-protocol-tutorial-2026.html">
+    <meta name="author" content="ZOO Technologies">
+    <meta name="robots" content="index, follow, max-image-preview:large">
+    <meta property="og:title" content="MCP Tutorial 2026: How to Build Model Context Protocol Servers for AI Agents">
+    <meta property="og:description" content="Complete MCP tutorial: Build MCP servers for AI agents with Python & TypeScript. Real code examples and production deployment patterns.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://zoo.dev/posts/mcp-model-context-protocol-tutorial-2026.html">
+    <meta property="og:site_name" content="ZOO Blog">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="MCP Tutorial 2026: Build Model Context Protocol Servers">
+    <meta name="twitter:description" content="Complete MCP tutorial: Build MCP servers for AI agents with Python & TypeScript. Real code + production patterns.">
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Article",
+      "headline": "MCP Tutorial 2026: How to Build Model Context Protocol Servers for AI Agents",
+      "description": "Complete MCP tutorial 2026: Learn Model Context Protocol from scratch. Build MCP servers for AI agents with Python & TypeScript.",
+      "author": {"@type": "Organization", "name": "ZOO Technologies"},
+      "publisher": {"@type": "Organization", "name": "ZOO Technologies", "url": "https://zootechnologies.com"},
+      "datePublished": "2026-05-09",
+      "dateModified": "2026-05-09",
+      "mainEntityOfPage": {"@type": "WebPage", "@id": "https://zoo.dev/posts/mcp-model-context-protocol-tutorial-2026.html"}
+    }
+    </script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>tailwind.config={theme:{extend:{colors:{zoo:{50:'#fdf2f8',100:'#fce7f3',200:'#fbcfe8',300:'#f9a8d4',400:'#f472b6',500:'#ec4899',600:'#db2777',700:'#be185d',800:'#9d174d',900:'#831843'}}}}}</script>
+    <style>
+        .glass{background:rgba(255,255,255,0.05);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,0.1)}
+        .text-gradient{background:linear-gradient(135deg,#ec4899,#8b5cf6,#06b6d4);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+        .code-block{background:#0d1117;border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:20px;overflow-x:auto;font-family:'Fira Code',monospace;font-size:14px;line-height:1.6;color:#e6edf3}
+        .code-block .keyword{color:#ff7b72}
+        .code-block .string{color:#a5d6ff}
+        .code-block .comment{color:#8b949e}
+        .code-block .function{color:#d2a8ff}
+        .highlight-box{background:linear-gradient(135deg,rgba(236,72,153,0.1),rgba(139,92,246,0.1));border:1px solid rgba(236,72,153,0.3);border-radius:12px;padding:24px}
+        .toc-link{color:#9090a8;text-decoration:none;transition:color 0.2s}
+        .toc-link:hover{color:#ec4899}
+    </style>
+</head>
+<body class="bg-gray-950 text-white min-h-screen">
+    <nav class="fixed top-0 left-0 right-0 z-50 glass">
+        <div class="max-w-5xl mx-auto px-6 py-4 flex items-center justify-between">
+            <a href="/" class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-zoo-500 to-purple-600 flex items-center justify-center text-sm font-bold">Z</div>
+                <span class="font-bold">ZOO Blog</span>
+            </a>
+            <div class="flex items-center gap-6 text-sm">
+                <a href="/ai" class="text-gray-400 hover:text-white transition">AI</a>
+                <a href="/trading" class="text-gray-400 hover:text-white transition">Trading</a>
+                <a href="/dev" class="text-gray-400 hover:text-white transition">Dev</a>
+                <a href="/business" class="text-gray-400 hover:text-white transition">Business</a>
+                <a href="https://zoo.dev" class="text-zoo-400 hover:text-zoo-300 transition">zoo.dev</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="pt-24 pb-16">
+        <div class="max-w-3xl mx-auto px-6">
+            <article>
+                <header class="mb-12">
+                    <div class="flex items-center gap-3 text-sm text-gray-500 mb-4">
+                        <span class="px-2 py-1 rounded bg-purple-500/20 text-purple-300">AI & Development</span>
+                        <span>·</span>
+                        <span>May 9, 2026</span>
+                        <span>·</span>
+                        <span>18 min read</span>
+                    </div>
+                    <h1 class="text-4xl md:text-5xl font-black mb-6">MCP Tutorial 2026: How to Build Model Context Protocol Servers for AI Agents</h1>
+                    <p class="text-xl text-gray-400">Model Context Protocol is becoming the standard for connecting AI agents to external tools. Here's everything you need to know — from zero to production MCP server.</p>
+                </header>
+
+                <div class="glass rounded-xl p-6 mb-12">
+                    <h2 class="text-lg font-bold mb-4">📋 Table of Contents</h2>
+                    <ol class="space-y-2 text-sm">
+                        <li><a href="#what-is-mcp" class="toc-link">1. What is Model Context Protocol (MCP)?</a></li>
+                        <li><a href="#why-mcp-matters" class="toc-link">2. Why MCP Matters for AI Agents in 2026</a></li>
+                        <li><a href="#architecture" class="toc-link">3. MCP Architecture Deep Dive</a></li>
+                        <li><a href="#build-python" class="toc-link">4. Building Your First MCP Server with Python</a></li>
+                        <li><a href="#build-typescript" class="toc-link">5. Building an MCP Server with TypeScript</a></li>
+                        <li><a href="#tools-resources-prompts" class="toc-link">6. Tools, Resources, and Prompts Explained</a></li>
+                        <li><a href="#connect-claude" class="toc-link">7. Connecting to Claude Desktop & Cursor</a></li>
+                        <li><a href="#production" class="toc-link">8. Production Deployment Patterns</a></li>
+                        <li><a href="#real-world" class="toc-link">9. Real-World MCP Use Cases We Built at ZOO</a></li>
+                        <li><a href="#faq" class="toc-link">10. FAQ — MCP Tutorial</a></li>
+                    </ol>
+                </div>
+
+                <section id="what-is-mcp" class="mb-12">
+                    <h2 class="text-3xl font-bold mb-4">What is Model Context Protocol (MCP)?</h2>
+                    <p class="text-gray-300 mb-4">Model Context Protocol (MCP) is an open standard introduced by Anthropic that defines how AI models connect to external data sources and tools. Think of it as USB-C for AI — one protocol, any tool, any model.</p>
+                    <p class="text-gray-300 mb-4">Before MCP, every AI integration was custom. Want Claude to read your database? Custom API. Want it to control your IDE? Another custom integration. MCP standardizes this into a single client-server protocol.</p>
+                    <div class="highlight-box mb-4">
+                        <p class="font-bold mb-2">🎯 Key Insight</p>
+                        <p class="text-gray-300">MCP servers expose three primitive types: <strong>Tools</strong> (functions the AI can call), <strong>Resources</strong> (data the AI can read), and <strong>Prompts</strong> (reusable prompt templates). That's it. Everything else is built on these three.</p>
+                    </div>
+                    <p class="text-gray-300">The protocol uses JSON-RPC 2.0 over stdio or HTTP/SSE transports, making it language-agnostic and easy to implement in any stack.</p>
+                </section>
+
+                <section id="why-mcp-matters" class="mb-12">
+                    <h2 class="text-3xl font-bold mb-4">Why MCP Matters for AI Agents in 2026</h2>
+                    <p class="text-gray-300 mb-4">MCP adoption has exploded. Claude Desktop, Cursor, Windsurf, and VS Code all support MCP natively. GitHub has 1,000+ MCP servers in its registry. Here's why it matters:</p>
+                    <ul class="space-y-3 text-gray-300 mb-6">
+                        <li class="flex gap-3"><span class="text-zoo-400">✓</span> <strong>Write once, use everywhere</strong> — One MCP server works with Claude, Cursor, and any MCP-compatible client</li>
+                        <li class="flex gap-3"><span class="text-zoo-400">✓</span> <strong>Composability</strong> — Chain multiple MCP servers together for complex agent workflows</li>
+                        <li class="flex gap-3"><span class="text-zoo-400">✓</span> <strong>Security</strong> — Sandboxed tool execution with explicit capability declarations</li>
+                        <li class="flex gap-3"><span class="text-zoo-400">✓</span> <strong>Standardization</strong> — No more custom integrations for every AI-tool combination</li>
+                        <li class="flex gap-3"><span class="text-zoo-400">✓</span> <strong>Ecosystem</strong> — 1,000+ pre-built MCP servers for databases, APIs, file systems, and more</li>
+                    </ul>
+                    <p class="text-gray-300">At ZOO, we use MCP to connect our AI agent swarm to internal tools — from trading APIs to deployment pipelines. It's the connective tissue of our entire agent infrastructure.</p>
+                </section>
+
+                <section id="architecture" class="mb-12">
+                    <h2 class="text-3xl font-bold mb-4">MCP Architecture Deep Dive</h2>
+                    <p class="text-gray-300 mb-4">MCP follows a client-host-server architecture:</p>
+                    <div class="code-block mb-6">
+                        <span class="comment"># MCP Architecture</span><br><br>
+                        <span class="string">┌─────────────┐     ┌─────────────┐     ┌─────────────┐</span><br>
+                        <span class="string">│   MCP Host  │────▶│  MCP Client │────▶│  MCP Server │</span><br>
+                        <span class="string">│(Claude,     │     │(in-process) │     │(Your Tool)  │</span><br>
+                        <span class="string">│ Cursor)     │     └─────────────┘     └─────────────┘</span><br>
+                        <span class="string">└─────────────┘</span><br><br>
+                        <span class="comment"># Transport layers:</span><br>
+                        <span class="comment"># - stdio: Local processes (most common)</span><br>
+                        <span class="comment"># - HTTP/SSE: Remote servers (production)</span><br>
+                        <span class="comment"># - WebSocket: Bidirectional (advanced)</span>
+                    </div>
+                    <p class="text-gray-300 mb-4">The <strong>Host</strong> (Claude Desktop, Cursor) manages one or more <strong>Clients</strong>, each connected to a <strong>Server</strong> (your tool). Communication happens via JSON-RPC messages.</p>
+                    <p class="text-gray-300">The lifecycle follows: Initialize → Capabilities Exchange → Normal Operation → Shutdown. During initialization, the client and server negotiate protocol versions and declare capabilities.</p>
+                </section>
+
+                <section id="build-python" class="mb-12">
+                    <h2 class="text-3xl font-bold mb-4">Building Your First MCP Server with Python</h2>
+                    <p class="text-gray-300 mb-4">Let's build a practical MCP server that gives an AI agent access to a trading data API. We'll use the official <code class="bg-white/10 px-2 py-1 rounded">mcp</code> Python SDK:</p>
+                    <div class="code-block mb-6">
+                        <span class="comment"># Install the MCP SDK</span><br>
+                        <span class="keyword">pip install</span> mcp uvicorn<br><br>
+                        <span class="comment"># trading_mcp_server.py</span><br>
+                        <span class="keyword">from</span> mcp.server <span class="keyword">import</span> Server<br>
+                        <span class="keyword">from</span> mcp.server.stdio <span class="keyword">import</span> stdio_server<br>
+                        <span class="keyword">import</span> asyncio<br>
+                        <span class="keyword">import</span> aiohttp<br><br>
+                        <span class="comment"># Create the MCP server</span><br>
+                        server = Server(<span class="string">"trading-data-server"</span>)<br><br>
+                        <span class="annotation">@server.list_tools()</span><br>
+                        <span class="keyword">async def</span> <span class="function">list_tools</span>():<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">return</span> [<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Tool(<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;name=<span class="string">"get_market_price"</span>,<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;description=<span class="string">"Get current market price for a trading pair"</span>,<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;inputSchema={<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="string">"type"</span>: <span class="string">"object"</span>,<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="string">"properties"</span>: {<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="string">"symbol"</span>: {<span class="string">"type"</span>: <span class="string">"string"</span>, <span class="string">"description"</span>: <span class="string">"Trading pair (e.g., EURUSD)"</span>}<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;},<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="string">"required"</span>: [<span class="string">"symbol"</span>]<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;)<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;]<br><br>
+                        <span class="annotation">@server.call_tool()</span><br>
+                        <span class="keyword">async def</span> <span class="function">call_tool</span>(name: <span class="keyword">str</span>, arguments: <span class="keyword">dict</span>):<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">if</span> name == <span class="string">"get_market_price"</span>:<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;symbol = arguments[<span class="string">"symbol"</span>]<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">async with</span> aiohttp.ClientSession() <span class="keyword">as</span> session:<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;price = <span class="keyword">await</span> fetch_price(session, symbol)<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">return</span> [TextContent(type=<span class="string">"text"</span>, text=<span class="string">f"{{symbol}}: ${{price}}"</span>)]<br><br>
+                        <span class="keyword">async def</span> <span class="function">main</span>():<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">async with</span> stdio_server() <span class="keyword">as</span> (read, write):<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">await</span> server.run(read, write, server.create_initialization_options())<br><br>
+                        <span class="keyword">if</span> __name__ == <span class="string">"__main__"</span>:<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;asyncio.run(main())
+                    </div>
+                    <p class="text-gray-300">This gives any MCP-compatible client the ability to fetch market prices. The AI agent can now say "What's the EURUSD price?" and Claude will call your tool automatically.</p>
+                </section>
+
+                <section id="build-typescript" class="mb-12">
+                    <h2 class="text-3xl font-bold mb-4">Building an MCP Server with TypeScript</h2>
+                    <p class="text-gray-300 mb-4">For full-stack teams, TypeScript MCP servers integrate seamlessly with Node.js backends:</p>
+                    <div class="code-block mb-6">
+                        <span class="comment">// npm install @modelcontextprotocol/sdk</span><br><br>
+                        <span class="keyword">import</span> { Server } <span class="keyword">from</span> <span class="string">"@modelcontextprotocol/sdk/server/index.js"</span>;<br>
+                        <span class="keyword">import</span> { StdioServerTransport } <span class="keyword">from</span> <span class="string">"@modelcontextprotocol/sdk/server/stdio.js"</span>;<br><br>
+                        <span class="keyword">const</span> server = <span class="keyword">new</span> Server({<br>
+                        &nbsp;&nbsp;name: <span class="string">"deployment-server"</span>,<br>
+                        &nbsp;&nbsp;version: <span class="string">"1.0.0"</span>,<br>
+                        }, {<br>
+                        &nbsp;&nbsp;capabilities: { tools: {} },<br>
+                        });<br><br>
+                        server.setRequestHandler(ListToolsRequestSchema, <span class="keyword">async</span> () => ({<br>
+                        &nbsp;&nbsp;tools: [{<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;name: <span class="string">"deploy_to_production"</span>,<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;description: <span class="string">"Deploy the current branch to production via Railway"</span>,<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;inputSchema: {<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;type: <span class="string">"object"</span>,<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;properties: {<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;branch: { type: <span class="string">"string"</span>, description: <span class="string">"Git branch to deploy"</span> },<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;environment: { type: <span class="string">"string"</span>, enum: [<span class="string">"staging"</span>, <span class="string">"production"</span>] }<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;},<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;required: [<span class="string">"branch"</span>],<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;},<br>
+                        &nbsp;&nbsp;}],<br>
+                        }));<br><br>
+                        <span class="comment">// Connect via stdio</span><br>
+                        <span class="keyword">const</span> transport = <span class="keyword">new</span> StdioServerTransport();<br>
+                        <span class="keyword">await</span> server.connect(transport);
+                    </div>
+                    <p class="text-gray-300">This pattern is what we use at ZOO for our deployment MCP server — agents can deploy code autonomously with proper safety checks.</p>
+                </section>
+
+                <section id="tools-resources-prompts" class="mb-12">
+                    <h2 class="text-3xl font-bold mb-4">Tools, Resources, and Prompts Explained</h2>
+                    <p class="text-gray-300 mb-4">Understanding the three MCP primitives is key to building effective servers:</p>
+                    <div class="space-y-6">
+                        <div class="glass rounded-xl p-6">
+                            <h3 class="text-xl font-bold text-zoo-400 mb-2">🔧 Tools</h3>
+                            <p class="text-gray-300">Functions the AI can call. Each tool has a name, description, and JSON Schema for inputs. Tools can have side effects (write to DB, call API, deploy code). The AI decides when to call them based on the description.</p>
+                        </div>
+                        <div class="glass rounded-xl p-6">
+                            <h3 class="text-xl font-bold text-purple-400 mb-2">📁 Resources</h3>
+                            <p class="text-gray-300">Data the AI can read. Files, database records, API responses. Resources are identified by URIs (e.g., <code class="bg-white/10 px-1 rounded">file:///logs/app.log</code>). The AI requests specific resources when it needs context.</p>
+                        </div>
+                        <div class="glass rounded-xl p-6">
+                            <h3 class="text-xl font-bold text-cyan-400 mb-2">💬 Prompts</h3>
+                            <p class="text-gray-300">Reusable prompt templates. Pre-defined workflows that the AI can invoke with parameters. Great for standardizing common operations like code review, deployment checklists, or trading analysis.</p>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="connect-claude" class="mb-12">
+                    <h2 class="text-3xl font-bold mb-4">Connecting to Claude Desktop & Cursor</h2>
+                    <p class="text-gray-300 mb-4">To use your MCP server with Claude Desktop, add it to the configuration:</p>
+                    <div class="code-block mb-6">
+                        <span class="comment">// ~/Library/Application Support/Claude/claude_desktop_config.json</span><br>
+                        {<br>
+                        &nbsp;&nbsp;<span class="string">"mcpServers"</span>: {<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="string">"trading-data"</span>: {<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="string">"command"</span>: <span class="string">"python"</span>,<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="string">"args"</span>: [<span class="string">"/path/to/trading_mcp_server.py"</span>]<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;},<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="string">"deployment"</span>: {<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="string">"command"</span>: <span class="string">"npx"</span>,<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="string">"args"</span>: [<span class="string">"-y"</span>, <span class="string">"tsx"</span>, <span class="string">"/path/to/deploy_server.ts"</span>]<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;}<br>
+                        &nbsp;&nbsp;}<br>
+                        }
+                    </div>
+                    <p class="text-gray-300 mb-4">For Cursor, add to <code class="bg-white/10 px-1 rounded">~/.cursor/mcp.json</code> with the same format. Restart the application and your tools will appear in the AI's available functions.</p>
+                </section>
+
+                <section id="production" class="mb-12">
+                    <h2 class="text-3xl font-bold mb-4">Production Deployment Patterns</h2>
+                    <p class="text-gray-300 mb-4">For production MCP servers, we recommend HTTP/SSE transport instead of stdio:</p>
+                    <div class="code-block mb-6">
+                        <span class="comment"># Using FastAPI + MCP HTTP transport</span><br>
+                        <span class="keyword">from</span> mcp.server.sse <span class="keyword">import</span> SseServerTransport<br>
+                        <span class="keyword">from</span> fastapi <span class="keyword">import</span> FastAPI, Request<br><br>
+                        app = FastAPI()<br>
+                        sse = SseServerTransport(<span class="string">"/messages"</span>)<br><br>
+                        <span class="annotation">@app.get(<span class="string">"/sse"</span>)</span><br>
+                        <span class="keyword">async def</span> <span class="function">handle_sse</span>(request: Request):<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">async with</span> sse.connect_sse(request) <span class="keyword">as</span> streams:<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">await</span> server.run(streams[0], streams[1], options)<br><br>
+                        <span class="comment"># Deploy to Railway/Docker</span><br>
+                        <span class="comment"># docker run -p 8080:8080 your-mcp-server</span>
+                    </div>
+                    <p class="text-gray-300">Key production considerations: authentication (API keys in headers), rate limiting, input validation, and structured logging. At ZOO, we run 12 MCP servers in production behind an API gateway.</p>
+                </section>
+
+                <section id="real-world" class="mb-12">
+                    <h2 class="text-3xl font-bold mb-4">Real-World MCP Use Cases We Built at ZOO</h2>
+                    <p class="text-gray-300 mb-4">Here are the MCP servers we run in production at ZOO:</p>
+                    <ul class="space-y-3 text-gray-300 mb-6">
+                        <li class="flex gap-3"><span class="text-zoo-400">▸</span> <strong>Trading Data Server</strong> — Real-time market prices, order book data, and technical indicators for our algorithmic trading agents</li>
+                        <li class="flex gap-3"><span class="text-zoo-400">▸</span> <strong>Deployment Server</strong> — Agents can deploy to staging/production via Railway API with approval gates</li>
+                        <li class="flex gap-3"><span class="text-zoo-400">▸</span> <strong>Code Review Server</strong> — Automated PR analysis with security scanning and style checks</li>
+                        <li class="flex gap-3"><span class="text-zoo-400">▸</span> <strong>Database Server</strong> — Read-only access to PostgreSQL for data analysis agents</li>
+                        <li class="flex gap-3"><span class="text-zoo-400">▸</span> <strong>Slack/Discord Server</strong> — Agents can send notifications and read channel messages</li>
+                    </ul>
+                    <p class="text-gray-300">Each server follows the same pattern: declare tools with clear descriptions, validate inputs rigorously, and log every tool call for observability.</p>
+                </section>
+
+                <section id="faq" class="mb-12">
+                    <h2 class="text-3xl font-bold mb-4">FAQ — MCP Tutorial</h2>
+                    <div class="space-y-6">
+                        <div class="glass rounded-xl p-6">
+                            <h3 class="font-bold mb-2">Is MCP only for Claude?</h3>
+                            <p class="text-gray-300">No. While Anthropic created MCP, it's an open standard. Cursor, Windsurf, VS Code, and many other tools support MCP. Any AI client can implement the MCP client spec.</p>
+                        </div>
+                        <div class="glass rounded-xl p-6">
+                            <h3 class="font-bold mb-2">MCP vs function calling — what's the difference?</h3>
+                            <p class="text-gray-300">Function calling is model-specific (OpenAI format, Anthropic format, etc.). MCP is a universal protocol that works across models. MCP also adds resources and prompts, not just tools.</p>
+                        </div>
+                        <div class="glass rounded-xl p-6">
+                            <h3 class="font-bold mb-2">Can I use MCP with local models?</h3>
+                            <p class="text-gray-300">Yes. Any model that supports tool calling can work with MCP through a compatible client. Ollama, LM Studio, and local LLMs all work with MCP servers.</p>
+                        </div>
+                        <div class="glass rounded-xl p-6">
+                            <h3 class="font-bold mb-2">How do I secure my MCP server?</h3>
+                            <p class="text-gray-300">Use API key authentication, validate all inputs against JSON Schema, implement rate limiting, and run servers in isolated containers. Never expose write-capable tools without authentication.</p>
+                        </div>
+                    </div>
+                </section>
+
+                <div class="glass rounded-2xl p-8 text-center mt-16">
+                    <h2 class="text-2xl font-bold mb-4">Building AI agents with MCP?</h2>
+                    <p class="text-gray-400 mb-6">We help teams build production AI agent infrastructure. From MCP servers to multi-agent orchestration.</p>
+                    <a href="https://zootechnologies.com/#contact" class="inline-block px-8 py-4 rounded-full bg-gradient-to-r from-zoo-500 to-purple-600 hover:from-zoo-600 hover:to-purple-700 transition font-bold">Get Free Architecture Review →</a>
+                </div>
+
+                <div class="mt-12 pt-8 border-t border-white/10">
+                    <h3 class="font-bold mb-4">Related Posts</h3>
+                    <div class="grid gap-4">
+                        <a href="/posts/ai-agent-api-fastapi-guide.html" class="glass rounded-lg p-4 hover:border-zoo-500/50 transition">
+                            <div class="font-bold">How to Build a Production-Ready AI Agent API with FastAPI</div>
+                            <div class="text-sm text-gray-500">Streaming SSE, session memory, tool calling with sandboxing</div>
+                        </a>
+                        <a href="/posts/agent-orchestration-replaced-management.html" class="glass rounded-lg p-4 hover:border-zoo-500/50 transition">
+                            <div class="font-bold">The AI Agent Orchestration Pattern That Replaced Our Management Team</div>
+                            <div class="text-sm text-gray-500">Production-ready Python code for multi-agent orchestration</div>
+                        </a>
+                        <a href="/posts/ai-agent-observability-monitoring.html" class="glass rounded-lg p-4 hover:border-zoo-500/50 transition">
+                            <div class="font-bold">AI Agent Observability — How to Monitor Agents in Production</div>
+                            <div class="text-sm text-gray-500">Distributed tracing, cost monitoring, output quality scoring</div>
+                        </a>
+                    </div>
+                </div>
+            </article>
+        </div>
+    </main>
+
+    <footer class="py-12 border-t border-white/10">
+        <div class="max-w-5xl mx-auto px-6 text-center text-gray-500 text-sm">
+            <p>© 2026 ZOO. All rights reserved. | <a href="https://zoo.dev" class="text-zoo-400 hover:text-zoo-300">zoo.dev</a></p>
+        </div>
+    </footer>
+</body>
+</html>
