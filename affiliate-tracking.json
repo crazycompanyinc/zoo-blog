@@ -1,0 +1,54 @@
+{
+  "affiliate_programs": [
+    {
+      "name": "Kit (formerly ConvertKit)",
+      "status": "applied",
+      "date": "2026-05-09",
+      "commission": "50% first year, 10-20% recurring",
+      "cookie_duration": "90 days",
+      "payout": "Monthly via PayPal/Stripe",
+      "platform": "PartnerStack",
+      "application_url": "https://dash.partnerstack.com/application?company=kit&group=kitaffiliates",
+      "affiliate_url": "https://kit.com/affiliate",
+      "email_used": "nexofran@gmail.com",
+      "business_name": "ZOO",
+      "notes": "Application submitted successfully. Awaiting approval (3 business days). PartnerStack account creation pending."
+    }
+  ],
+  "content_published": [
+    {
+      "title": "Top 10 Affiliate Programs for Developers in 2026",
+      "url": "/posts/top-affiliate-programs-developers-2026.html",
+      "date": "2026-05-09",
+      "affiliate_links": [
+        "https://kit.com/affiliate",
+        "https://vercel.com/docs/partners/affiliate",
+        "https://railway.app?referralCode=zoo",
+        "https://supabase.com/partners/affiliates",
+        "https://www.digitalocean.com/referral-program"
+      ]
+    },
+    {
+      "title": "Best SaaS Tools for AI Startups in 2026",
+      "url": "/posts/best-saas-tools-ai-startups-2026.html",
+      "date": "2026-05-09",
+      "affiliate_links": [
+        "https://vercel.com/?utm_source=zoo&utm_medium=affiliate",
+        "https://railway.app?referralCode=zoo",
+        "https://supabase.com/?utm_source=zoo&utm_medium=affiliate",
+        "https://www.beehiiv.com/?via=zoo",
+        "https://figma.com/?utm_source=zoo&utm_medium=affiliate",
+        "https://notion.so/?utm_source=zoo&utm_medium=affiliate",
+        "https://linear.app/?utm_source=zoo&utm_medium=affiliate",
+        "https://stripe.com/?utm_source=zoo&utm_medium=affiliate",
+        "https://www.cloudflare.com/?utm_source=zoo&utm_medium=affiliate"
+      ]
+    }
+  ],
+  "stats": {
+    "total_programs_applied": 1,
+    "total_programs_approved": 0,
+    "total_content_pieces": 2,
+    "total_affiliate_links": 14
+  }
+}
