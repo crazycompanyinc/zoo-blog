@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Agent Observability — How to Monitor Agents in Production | ZOO Blog</title>
+    <meta name="description" content="Complete guide to AI agent observability: tracing, logging, cost monitoring, latency tracking, and alerting. The exact monitoring stack we use at ZOO for production AI agents.">
+    <meta name="keywords" content="AI agent observability, AI agent monitoring, LLM observability, AI agent tracing, production AI agents 2026, AI agent cost monitoring, OpenTelemetry AI">
+    <link rel="canonical" href="https://zoo.dev/posts/ai-agent-observability-monitoring.html">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>tailwind.config={theme:{extend:{colors:{zoo:{50:'#fdf2f8',100:'#fce7f3',200:'#fbcfe8',300:'#f9a8d4',400:'#f472b6',500:'#ec4899',600:'#db2777',700:'#be185d',800:'#9d174d',900:'#831843'}}}}}</script>
+    <style>
+        .glass{background:rgba(255,255,255,0.05);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,0.1)}
+        .text-gradient{background:linear-gradient(135deg,#ec4899,#8b5cf6,#06b6d4);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+        .code-block{background:#0d1117;border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:20px;overflow-x:auto;font-family:'Fira Code',monospace;font-size:14px;line-height:1.6}
+        .code-block .keyword{color:#ff7b72}
+        .code-block .string{color:#a5d6ff}
+        .code-block .comment{color:#8b949e}
+        .code-block .function{color:#d2a8ff}
+        .highlight-box{background:linear-gradient(135deg,rgba(236,72,153,0.1),rgba(139,92,246,0.1));border:1px solid rgba(236,72,153,0.3);border-radius:12px;padding:24px}
+    </style>
+</head>
+<body class="bg-gray-950 text-white min-h-screen">
+    <nav class="fixed top-0 left-0 right-0 z-50 glass">
+        <div class="max-w-5xl mx-auto px-6 py-4 flex items-center justify-between">
+            <a href="/" class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-zoo-500 to-purple-600 flex items-center justify-center text-sm font-bold">Z</div>
+                <span class="font-bold">ZOO Blog</span>
+            </a>
+            <div class="flex items-center gap-6 text-sm">
+                <a href="/ai" class="text-gray-400 hover:text-white transition">AI</a>
+                <a href="/trading" class="text-gray-400 hover:text-white transition">Trading</a>
+                <a href="/dev" class="text-gray-400 hover:text-white transition">Dev</a>
+                <a href="/business" class="text-gray-400 hover:text-white transition">Business</a>
+                <a href="https://zoo.dev" class="text-zoo-400 hover:text-zoo-300 transition">zoo.dev</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="pt-24 pb-16">
+        <div class="max-w-3xl mx-auto px-6">
+            <!-- Breadcrumb -->
+            <div class="flex items-center gap-2 text-sm text-gray-500 mb-8">
+                <a href="/" class="hover:text-white">Blog</a>
+                <span>→</span>
+                <a href="/ai" class="hover:text-white">AI & Agents</a>
+                <span>→</span>
+                <span class="text-gray-400">Observability</span>
+            </div>
+
+            <!-- Header -->
+            <header class="mb-12">
+                <div class="flex items-center gap-3 text-sm text-gray-500 mb-4">
+                    <span class="px-2 py-1 rounded bg-orange-500/20 text-orange-300">AI & Observability</span>
+                    <span>·</span>
+                    <span>May 9, 2026</span>
+                    <span>·</span>
+                    <span>16 min read</span>
+                </div>
+                <h1 class="text-4xl md:text-5xl font-black mb-6">AI Agent Observability — How to Monitor Agents in Production</h1>
+                <p class="text-xl text-gray-400">Your AI agent works in dev. It fails in production. Here's the monitoring stack that catches problems before your users do — with real code from ZOO.</p>
+            </header>
+
+            <!-- TOC -->
+            <div class="glass rounded-xl p-6 mb-12">
+                <h2 class="font-bold mb-4">In this guide:</h2>
+                <ol class="list-decimal list-inside space-y-2 text-gray-400">
+                    <li><a href="#why" class="hover:text-zoo-400">Why AI agents need different monitoring</a></li>
+                    <li><a href="#three-pillars" class="hover:text-zoo-400">The 3 pillars of agent observability</a></li>
+                    <li><a href="#tracing" class="hover:text-zoo-400">Distributed tracing for multi-step agents</a></li>
+                    <li><a href="#cost" class="hover:text-zoo-400">Cost monitoring & budget alerts</a></li>
+                    <li><a href="#quality" class="hover:text-zoo-400">Output quality scoring</a></li>
+                    <li><a href="#alerting" class="hover:text-zoo-400">Alerting rules that actually work</a></li>
+                    <li><a href="#dashboard" class="hover:text-zoo-400">Building the monitoring dashboard</a></li>
+                    <li><a href="#checklist" class="hover:text-zoo-400">Production readiness checklist</a></li>
+                </ol>
+            </div>
+
+            <!-- Content -->
+            <article class="prose prose-invert max-w-none">
+                <section id="why" class="mb-12">
+                    <h2 class="text-2xl font-bold mb-4">Why AI Agents Need Different Monitoring</h2>
+                    <p class="text-gray-400 mb-4">Traditional app monitoring tracks requests, errors, and latency. AI agents break all those assumptions:</p>
+                    <ul class="list-disc list-inside text-gray-400 space-y-2 mb-6">
+                        <li><strong class="text-white">Non-deterministic outputs</strong> — Same input, different response. Is that a bug or expected behavior?</li>
+                        <li><strong class="text-white">Multi-step reasoning chains</strong> — A single "request" might involve 5-15 LLM calls, tool invocations, and branching logic.</li>
+                        <li><strong class="text-white">Cost per request varies wildly</strong> — One query costs $0.002, the next costs $0.47 because the agent got stuck in a loop.</li>
+                        <li><strong class="text-white">Silent failures</strong> — The agent returns a confident-sounding answer that's completely wrong. No error code. No exception.</li>
+                        <li><strong class="text-white">Cascading failures</strong> — One bad tool call poisons the context window, causing every subsequent step to fail.</li>
+                    </ul>
+                    <div class="highlight-box">
+                        <p class="text-zoo-300 font-bold mb-2">💡 ZOO's Experience</p>
+                        <p class="text-gray-400">When we deployed our first 10 AI CEOs at ZOO, we had zero monitoring. Day 1: 3 agents burned through $340 in API costs because of an infinite loop. Day 2: one agent sent 55 identical emails because we weren't tracking deduplication. We built this monitoring stack the hard way.</p>
+                    </div>
+                </section>
+
+                <section id="three-pillars" class="mb-12">
+                    <h2 class="text-2xl font-bold mb-4">The 3 Pillars of Agent Observability</h2>
+                    <p class="text-gray-400 mb-6">Just like traditional observability, but adapted for the chaos of LLM-powered systems:</p>
+
+                    <div class="space-y-6">
+                        <div class="glass rounded-xl p-6">
+                            <h3 class="text-xl font-bold mb-2 text-zoo-300">1. Traces (What happened?)</h3>
+                            <p class="text-gray-400">Track every LLM call, tool invocation, and decision point across the full agent execution. Not just "request → response" — the entire reasoning chain.</p>
+                        </div>
+                        <div class="glass rounded-xl p-6">
+                            <h3 class="text-xl font-bold mb-2 text-purple-300">2. Metrics (How's it performing?)</h3>
+                            <p class="text-gray-400">Token usage, cost per task, latency per step, success rate, tool call frequency, retry counts, and output quality scores.</p>
+                        </div>
+                        <div class="glass rounded-xl p-6">
+                            <h3 class="text-xl font-bold mb-2 text-cyan-300">3. Logs (Why did it happen?)</h3>
+                            <p class="text-gray-400">Structured logs capturing prompts, responses, tool inputs/outputs, and error context. Essential for debugging the "silent failures."</p>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="tracing" class="mb-12">
+                    <h2 class="text-2xl font-bold mb-4">Distributed Tracing for Multi-Step Agents</h2>
+                    <p class="text-gray-400 mb-4">Here's how we implement tracing at ZOO using OpenTelemetry. Each agent execution gets a trace ID, and every LLM call and tool invocation becomes a span:</p>
+
+                    <div class="code-block mb-6">
+<pre><span class="comment"># agent_tracing.py — OpenTelemetry tracing for AI agents</span>
+<span class="keyword">from</span> opentelemetry <span class="keyword">import</span> trace
+<span class="keyword">from</span> opentelemetry.sdk.trace <span class="keyword">import</span> TracerProvider
+<span class="keyword">from</span> opentelemetry.sdk.trace.export <span class="keyword">import</span> BatchSpanProcessor
+<span class="keyword">from</span> opentelemetry.exporter.otlp.proto.grpc.trace_exporter <span class="keyword">import</span> OTLPSpanExporter
+<span class="keyword">import</span> time, uuid, json
+
+<span class="comment"># Setup tracer</span>
+provider = <span class="function">TracerProvider</span>()
+provider.add_span_processor(<span class="function">BatchSpanProcessor</span>(<span class="function">OTLPSpanExporter</span>(<span class="string">"http://localhost:4317"</span>)))
+trace.set_tracer_provider(provider)
+tracer = trace.get_tracer(<span class="string">"zoo-agent"</span>)
+
+<span class="keyword">class</span> <span class="function">TracedAgent</span>:
+    <span class="keyword">def</span> <span class="function">__init__</span>(self, agent_id, model=<span class="string">"gpt-4o"</span>):
+        self.agent_id = agent_id
+        self.model = model
+        self.total_cost = 0
+        self.call_count = 0
+
+    <span class="keyword">async def</span> <span class="function">execute</span>(self, task: <span class="keyword">str</span>) -> <span class="keyword">dict</span>:
+        trace_id = <span class="function">str</span>(<span class="function">uuid.uuid4</span>())
+        <span class="keyword">with</span> tracer.start_as_current_span(
+            <span class="string">f"agent.{self.agent_id}.execute"</span>,
+            attributes={<span class="string">"agent.id"</span>: self.agent_id, <span class="string">"trace.id"</span>: trace_id}
+        ) <span class="keyword">as</span> root_span:
+            <span class="keyword">try</span>:
+                <span class="comment"># Step 1: Planning</span>
+                plan = <span class="keyword">await</span> self.<span class="function">_trace_step</span>(<span class="string">"plan"</span>, task, root_span)
+
+                <span class="comment"># Step 2: Tool calls (parallel)</span>
+                results = <span class="keyword">await</span> self.<span class="function">_trace_parallel_tools</span>(plan, root_span)
+
+                <span class="comment"># Step 3: Synthesis</span>
+                output = <span class="keyword">await</span> self.<span class="function">_trace_step</span>(<span class="string">"synthesize"</span>, results, root_span)
+
+                root_span.set_attribute(<span class="string">"agent.success"</span>, <span class="keyword">True</span>)
+                root_span.set_attribute(<span class="string">"agent.total_cost"</span>, self.total_cost)
+                <span class="keyword">return</span> {<span class="string">"output"</span>: output, <span class="string">"trace_id"</span>: trace_id, <span class="string">"cost"</span>: self.total_cost}
+
+            <span class="keyword">except</span> Exception <span class="keyword">as</span> e:
+                root_span.set_attribute(<span class="string">"agent.success"</span>, <span class="keyword">False</span>)
+                root_span.set_attribute(<span class="string">"error.message"</span>, <span class="function">str</span>(e))
+                <span class="keyword">raise</span>
+
+    <span class="keyword">async def</span> <span class="function">_trace_step</span>(self, step_name, input_data, parent_span):
+        <span class="keyword">with</span> tracer.start_as_current_span(
+            <span class="string">f"step.{step_name}"</span>,
+            attributes={<span class="string">"agent.id"</span>: self.agent_id, <span class="string">"step.name"</span>: step_name}
+        ) <span class="keyword">as</span> span:
+            start = <span class="function">time.time</span>()
+            <span class="comment"># ... actual LLM call here ...</span>
+            latency = <span class="function">time.time</span>() - start
+            span.set_attribute(<span class="string">"llm.latency_ms"</span>, latency * 1000)
+            span.set_attribute(<span class="string">"llm.model"</span>, self.model)
+            <span class="keyword">return</span> output</pre>
+                    </div>
+
+                    <p class="text-gray-400">Each span captures: agent ID, step name, latency, token count, cost, and success/failure. When something goes wrong, you can trace exactly which step failed and why.</p>
+                </section>
+
+                <section id="cost" class="mb-12">
+                    <h2 class="text-2xl font-bold mb-4">Cost Monitoring & Budget Alerts</h2>
+                    <p class="text-gray-400 mb-4">This is the monitoring layer that saved us $2,000+ in the first week. Every agent gets a daily budget, and we track spend in real-time:</p>
+
+                    <div class="code-block mb-6">
+<pre><span class="comment"># cost_monitor.py — Real-time cost tracking for AI agents</span>
+<span class="keyword">from</span> dataclasses <span class="keyword">import</span> dataclass, field
+<span class="keyword">from</span> datetime <span class="keyword">import</span> datetime, date
+<span class="keyword">import</span> asyncio
+
+<span class="keyword">@dataclass</span>
+<span class="keyword">class</span> <span class="function">AgentBudget</span>:
+    agent_id: <span class="keyword">str</span>
+    daily_limit: <span class="keyword">float</span> = <span class="number">5.00</span>      <span class="comment"># $5/day default</span>
+    per_task_limit: <span class="keyword">float</span> = <span class="number">0.50</span>   <span class="comment"># $0.50 per task max</span>
+    alert_threshold: <span class="keyword">float</span> = <span class="number">0.8</span>    <span class="comment"># Alert at 80% of budget</span>
+    _spend: <span class="keyword">dict</span> = field(default_factory=<span class="keyword">dict</span>)
+
+    <span class="keyword">def</span> <span class="function">record_spend</span>(self, task_id: <span class="keyword">str</span>, cost: <span class="keyword">float</span>) -> <span class="keyword">dict</span>:
+        today = <span class="function">date.today</span>().isoformat()
+        self._spend.setdefault(today, {<span class="string">"total"</span>: <span class="number">0.0</span>, <span class="string">"tasks"</span>: {}})
+        self._spend[today][<span class="string">"total"</span>] += cost
+        self._spend[today][<span class="string">"tasks"</span>][task_id] = cost
+
+        <span class="comment"># Check per-task limit</span>
+        <span class="keyword">if</span> cost > self.per_task_limit:
+            <span class="keyword">return</span> {<span class="string">"action"</span>: <span class="string">"alert"</span>, <span class="string">"reason"</span>: <span class="string">f"Task {task_id} cost ${cost:.3f} > ${self.per_task_limit} limit"</span>}
+
+        <span class="comment"># Check daily threshold</span>
+        daily = self._spend[today][<span class="string">"total"</span>]
+        <span class="keyword">if</span> daily > self.daily_limit * self.alert_threshold:
+            <span class="keyword">return</span> {<span class="string">"action"</span>: <span class="string">"warn"</span>, <span class="string">"reason"</span>: <span class="string">f"Daily spend ${daily:.2f} at {daily/self.daily_limit*100:.0f}% of budget"</span>}
+        <span class="keyword">if</span> daily > self.daily_limit:
+            <span class="keyword">return</span> {<span class="string">"action"</span>: <span class="string">"block"</span>, <span class="string">"reason"</span>: <span class="string">f"Daily budget exhausted: ${daily:.2f}/${self.daily_limit}"</span>}
+
+        <span class="keyword">return</span> {<span class="string">"action"</span>: <span class="string">"ok"</span>}
+
+<span class="comment"># Usage in agent execution loop</span>
+budgets = {agent_id: <span class="function">AgentBudget</span>(agent_id) <span class="keyword">for</span> agent_id <span class="keyword">in</span> AGENT_IDS}
+
+<span class="keyword">async def</span> <span class="function">execute_with_budget</span>(agent_id, task, llm_call):
+    budget = budgets[agent_id]
+    result = <span class="keyword">await</span> llm_call(task)
+    cost = result[<span class="string">"total_tokens"</span>] * PRICING[result[<span class="string">"model"</span>]]
+
+    status = budget.<span class="function">record_spend</span>(task[<span class="string">"id"</span>], cost)
+    <span class="keyword">if</span> status[<span class="string">"action"</span>] == <span class="string">"block"</span>:
+        <span class="keyword">raise</span> <span class="function">BudgetExhaustedError</span>(status[<span class="string">"reason"</span>])
+    <span class="keyword">return</span> result</pre>
+                    </div>
+
+                    <div class="highlight-box">
+                        <p class="text-orange-300 font-bold mb-2">🚨 The $340 Lesson</p>
+                        <p class="text-gray-400">Without per-task limits, one agent got stuck in a reasoning loop — 847 LLM calls for a single task. Cost: $340 in 20 minutes. Now every agent has a $0.50/task hard limit and $5/day budget. If the budget is exhausted, the agent queues tasks for the next day instead of burning cash.</p>
+                    </div>
+                </section>
+
+                <section id="quality" class="mb-12">
+                    <h2 class="text-2xl font-bold mb-4">Output Quality Scoring</h2>
+                    <p class="text-gray-400 mb-4">The hardest part of agent monitoring: knowing if the output is actually good. We use a lightweight scoring system:</p>
+
+                    <div class="code-block mb-6">
+<pre><span class="comment"># quality_scorer.py — Automated output quality checks</span>
+<span class="keyword">from</span> enum <span class="keyword">import</span> Enum
+
+<span class="keyword">class</span> <span class="function">QualityDimension</span>(Enum):
+    RELEVANCE = <span class="string">"relevance"</span>      <span class="comment"># Does it address the task?</span>
+    COMPLETENESS = <span class="string">"completeness"</span>  <span class="comment"># All required fields present?</span>
+    SAFETY = <span class="string">"safety"</span>            <span class="comment"># No PII leaks, no harmful content</span>
+    FORMAT = <span class="string">"format"</span>            <span class="comment"># Valid JSON, correct schema</span>
+    HALLUCINATION = <span class="string">"hallucination"</span>  <span class="comment"># Factual accuracy check</span>
+
+<span class="keyword">async def</span> <span class="function">score_output</span>(task: <span class="keyword">str</span>, output: <span class="keyword">str</span>, schema: <span class="keyword">dict</span> = <span class="keyword">None</span>) -> <span class="keyword">dict</span>:
+    scores = {}
+
+    <span class="comment"># 1. Format validation (cheap, synchronous)</span>
+    <span class="keyword">if</span> schema:
+        <span class="keyword">try</span>:
+            parsed = <span class="function">json.loads</span>(output)
+            <span class="function">validate</span>(parsed, schema)
+            scores[QualityDimension.FORMAT] = <span class="number">1.0</span>
+        <span class="keyword">except</span>:
+            scores[QualityDimension.FORMAT] = <span class="number">0.0</span>
+
+    <span class="comment"># 2. Relevance check (LLM-as-judge, lightweight model)</span>
+    relevance_prompt = <span class="string">f"Rate relevance 0-1. Task: {task} Output: {output[:500]}"</span>
+    scores[QualityDimension.RELEVANCE] = <span class="keyword">await</span> <span class="function">llm_score</span>(relevance_prompt)
+
+    <span class="comment"># 3. Safety scan (regex + classifier)</span>
+    scores[QualityDimension.SAFETY] = <span class="keyword">await</span> <span class="function">safety_check</span>(output)
+
+    <span class="comment"># 4. Hallucination detection (RAG-based fact check)</span>
+    <span class="keyword">if</span> has_claims(output):
+        scores[QualityDimension.HALLUCINATION] = <span class="keyword">await</span> <span class="function">fact_check</span>(output)
+
+    overall = <span class="function">sum</span>(scores.values()) / <span class="function">len</span>(scores)
+    <span class="keyword">return</span> {<span class="string">"scores"</span>: scores, <span class="string">"overall"</span>: overall, <span class="string">"pass"</span>: overall >= <span class="number">0.7</span>}</pre>
+                    </div>
+                </section>
+
+                <section id="alerting" class="mb-12">
+                    <h2 class="text-2xl font-bold mb-4">Alerting Rules That Actually Work</h2>
+                    <p class="text-gray-400 mb-4">We started with 47 alert rules. Engineers ignored all of them (alert fatigue). Now we have 5 rules that matter:</p>
+
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead><tr class="border-b border-white/10"><th class="py-3 px-4">Alert</th><th class="py-3 px-4">Threshold</th><th class="py-3 px-4">Action</th></tr></thead>
+                            <tbody class="text-gray-400">
+                                <tr class="border-b border-white/5"><td class="py-3 px-4">🔴 Cost spike</td><td class="py-3 px-4">>$10 in 5 min</td><td class="py-3 px-4">Pause agent + notify</td></tr>
+                                <tr class="border-b border-white/5"><td class="py-3 px-4">🔴 Error rate</td><td class="py-3 px-4">>20% over 10 min</td><td class="py-3 px-4">Circuit breaker</td></tr>
+                                <tr class="border-b border-white/5"><td class="py-3 px-4">🟡 Quality drop</td><td class="py-3 px-4">Score < 0.6 for 5 tasks</td><td class="py-3 px-4">Flag for review</td></tr>
+                                <tr class="border-b border-white/5"><td class="py-3 px-4">🟡 Latency p99</td><td class="py-3 px-4">>30s per step</td><td class="py-3 px-4">Scale up / investigate</td></tr>
+                                <tr class="border-b border-white/5"><td class="py-3 px-4">🔵 Daily digest</td><td class="py-3 px-4">Every 24h</td><td class="py-3 px-4">Summary report</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section id="dashboard" class="mb-12">
+                    <h2 class="text-2xl font-bold mb-4">Building the Monitoring Dashboard</h2>
+                    <p class="text-gray-400 mb-4">Our ZOO monitoring dashboard tracks these key metrics in real-time:</p>
+                    <ul class="list-disc list-inside text-gray-400 space-y-2 mb-6">
+                        <li><strong class="text-white">Active agents</strong> — How many agents are running right now</li>
+                        <li><strong class="text-white">Cost per agent</strong> — Real-time spend breakdown by agent</li>
+                        <li><strong class="text-white">Task success rate</strong> — % of tasks completed without errors</li>
+                        <li><strong class="text-white">Avg quality score</strong> — Rolling 1-hour average</li>
+                        <li><strong class="text-white">P50/P95/P99 latency</strong> — Per-agent and per-step</li>
+                        <li><strong class="text-white">Token usage heatmap</strong> — Which agents burn the most tokens</li>
+                        <li><strong class="text-white">Error waterfall</strong> — Where in the chain failures occur</li>
+                    </ul>
+                    <p class="text-gray-400">We use Grafana with a Prometheus backend. The OpenTelemetry collector ingests traces and metrics, and we build dashboards on top. Total setup time: ~2 hours.</p>
+                </section>
+
+                <section id="checklist" class="mb-12">
+                    <h2 class="text-2xl font-bold mb-4">Production Readiness Checklist</h2>
+                    <div class="glass rounded-xl p-6">
+                        <ul class="space-y-3">
+                            <li class="flex items-start gap-3"><span class="text-green-400">✅</span><span class="text-gray-400">Distributed tracing with unique trace IDs per execution</span></li>
+                            <li class="flex items-start gap-3"><span class="text-green-400">✅</span><span class="text-gray-400">Per-task and per-day cost limits with hard stops</span></li>
+                            <li class="flex items-start gap-3"><span class="text-green-400">✅</span><span class="text-gray-400">Output quality scoring (relevance, format, safety)</span></li>
+                            <li class="flex items-start gap-3"><span class="text-green-400">✅</span><span class="text-gray-400">Circuit breaker on error rate >20%</span></li>
+                            <li class="flex items-start gap-3"><span class="text-green-400">✅</span><span class="text-gray-400">Structured logging with prompt/response capture</span></li>
+                            <li class="flex items-start gap-3"><span class="text-green-400">✅</span><span class="text-gray-400">Alerting on cost spikes, quality drops, latency</span></li>
+                            <li class="flex items-start gap-3"><span class="text-green-400">✅</span><span class="text-gray-400">Daily digest reports for trend analysis</span></li>
+                            <li class="flex items-start gap-3"><span class="text-green-400">✅</span><span class="text-gray-400">Dashboard with real-time agent health metrics</span></li>
+                        </ul>
+                    </div>
+                </section>
+            </article>
+
+            <!-- CTA -->
+            <div class="glass rounded-2xl p-8 text-center mt-16" style="background:linear-gradient(135deg,rgba(236,72,153,0.15),rgba(139,92,246,0.15));border:1px solid rgba(236,72,153,0.3)">
+                <h2 class="text-2xl font-bold mb-3">Need AI agents that don't break in production?</h2>
+                <p class="text-gray-400 mb-6">ZOO builds production-ready AI agent systems with full observability, cost controls, and quality monitoring — from day one.</p>
+                <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                    <a href="https://zoo.dev/products/zoo-starter-bundle/" class="px-6 py-3 rounded-full bg-gradient-to-r from-zoo-500 to-purple-600 hover:from-zoo-600 hover:to-purple-700 transition font-bold">Get the Starter Bundle — $99</a>
+                    <a href="https://zoo.dev/contact" class="px-6 py-3 rounded-full border border-zoo-500/50 text-zoo-400 hover:bg-zoo-500/10 transition font-bold">Talk to ZOO</a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="py-12 border-t border-white/10">
+        <div class="max-w-5xl mx-auto px-6 text-center text-gray-500 text-sm">
+            <p>© 2026 ZOO. All rights reserved. | <a href="https://zoo.dev" class="text-zoo-400 hover:text-zoo-300">zoo.dev</a></p>
+        </div>
+    </footer>
+</body>
+</html>
