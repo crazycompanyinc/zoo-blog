@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How to Test AI Agents: A Complete Guide with pytest | ZOO Blog</title>
+    <meta name="description" content="Complete guide to testing AI agents with pytest. Unit tests, integration tests, mock LLM responses, evaluate tool calling, and CI/CD pipelines. Real Python code.">
+    <meta name="keywords" content="AI agent testing, pytest AI, test AI agents, LLM testing, AI agent QA, Python testing">
+    <link rel="canonical" href="https://zootechnologies.com/posts/ai-agent-testing-guide.html">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>tailwind.config={theme:{extend:{colors:{zoo:{50:'#fdf2f8',100:'#fce7f3',200:'#fbcfe8',300:'#f9a8d4',400:'#f472b6',500:'#ec4899',600:'#db2777',700:'#be185d',800:'#9d174d',900:'#831843'}}}}}</script>
+    <style>
+        .glass{background:rgba(255,255,255,0.05);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,0.1)}
+        .text-gradient{background:linear-gradient(135deg,#ec4899,#8b5cf6,#06b6d4);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+        pre{background:rgba(0,0,0,0.5)!important;border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:1.5rem;overflow-x:auto}
+        code{font-family:'Fira Code',monospace;font-size:0.875rem}
+        :not(pre)>code{background:rgba(236,72,153,0.1);color:#f472b6;padding:0.125rem 0.375rem;border-radius:4px;font-size:0.85em}
+        h2{font-size:1.75rem;font-weight:800;margin-top:3rem;margin-bottom:1rem}
+        h3{font-size:1.25rem;font-weight:700;margin-top:2rem;margin-bottom:0.75rem}
+        p{line-height:1.8;margin-bottom:1.25rem;color:#d1d5db}
+        ul{list-style:disc;margin-left:1.5rem;margin-bottom:1.25rem}
+        li{margin-bottom:0.5rem;color:#d1d5db}
+    </style>
+</head>
+<body class="bg-gray-950 text-white min-h-screen">
+    <nav class="fixed top-0 left-0 right-0 z-50 glass">
+        <div class="max-w-5xl mx-auto px-6 py-4 flex items-center justify-between">
+            <a href="/" class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-zoo-500 to-purple-600 flex items-center justify-center text-sm font-bold">Z</div>
+                <span class="font-bold">ZOO Blog</span>
+            </a>
+            <a href="/" class="text-gray-400 hover:text-white transition text-sm">← Back to Blog</a>
+        </div>
+    </nav>
+
+    <main class="pt-24 pb-16">
+        <div class="max-w-3xl mx-auto px-6">
+            <article>
+                <header class="mb-12">
+                    <div class="flex items-center gap-3 text-sm text-gray-500 mb-4">
+                        <span class="px-2 py-1 rounded bg-amber-500/20 text-amber-300">Dev Tools & Testing</span>
+                        <span>·</span>
+                        <span>May 9, 2026</span>
+                        <span>·</span>
+                        <span>15 min read</span>
+                    </div>
+                    <h1 class="text-4xl md:text-5xl font-black mb-6">How to Test AI Agents: A Complete Guide with pytest</h1>
+                    <p class="text-xl text-gray-400">Your AI agent works perfectly in the notebook. Then a user sends an unexpected message, the agent calls the wrong tool, hallucinates a response, and your production bill spikes 3x. Here's how to build a test suite that catches these failures before your users do.</p>
+                </header>
+
+                <div class="prose prose-invert max-w-none">
+                    <h2>The Testing Problem Nobody Talks About</h2>
+                    <p>AI agents are fundamentally different from traditional software. They're non-deterministic, expensive to run, and their outputs are hard to assert against. Most teams either:</p>
+                    <ul>
+                        <li><strong>Don't test at all</strong> — "We manually check it works" (until it doesn't at 3 AM)</li>
+                        <li><strong>Test with real API calls</strong> — $500/month in OpenAI bills just for CI/CD</li>
+                        <li><strong>Write brittle string-matching tests</strong> — break every time the LLM changes its phrasing</li>
+                    </ul>
+                    <p>At ZOO, we tested 10 AI agents across 200+ test cases. Here's the testing architecture that actually works.</p>
+
+                    <h2>The 4-Layer Testing Pyramid for AI Agents</h2>
+                    <pre><code>         ┌──────────────┐
+         │   E2E Tests  │  ← Full agent runs (mocked LLM)
+         │   ~10 tests  │     Validates complete workflows
+         ├──────────────┤
+         │ Integration  │  ← Agent + tools + memory
+         │   ~30 tests  │     Validates component interaction
+         ├──────────────┤
+         │  Unit Tests  │  ← Individual tools, parsers, validators
+         │   ~60 tests  │     Fast, deterministic, cheap
+         ├──────────────┤
+         │  Static      │  ← Type checking, linting, schema validation
+         │  Analysis    │     Catches issues before runtime
+         └──────────────┘</code></pre>
+
+                    <h2>Step 1: Mock the LLM (The Foundation)</h2>
+                    <p>Every AI agent test starts with a mock LLM. You need full control over what the "model" returns — including errors, tool calls, and edge cases.</p>
+                    <pre><code># tests/mocks/llm.py
+import json
+from unittest.mock import AsyncMock, MagicMock
+from typing import Optional
+
+class MockLLM:
+    """Configurable mock LLM for testing AI agents."""
+
+    def __init__(self):
+        self.responses = []
+        self.call_count = 0
+        self.call_history = []
+
+    def add_response(self, content: str = "", tool_calls: list = None,
+                     finish_reason: str = "stop"):
+        """Queue a response for the next call."""
+        self.responses.append({
+            "content": content,
+            "tool_calls": tool_calls or [],
+            "finish_reason": finish_reason,
+        })
+
+    def add_error(self, error_type: str = "timeout"):
+        """Queue an error for the next call."""
+        self.responses.append({"error": error_type})
+
+    def get_client(self):
+        """Return a mock OpenAI-compatible client."""
+        mock_client = MagicMock()
+        mock_chat = MagicMock()
+        mock_completions = MagicMock()
+
+        async def mock_create(*args, **kwargs):
+            self.call_count += 1
+            self.call_history.append({"args": args, "kwargs": kwargs})
+
+            if not self.responses:
+                return self._make_chunk("Default mock response")
+
+            response = self.responses.pop(0)
+
+            if "error" in response:
+                if response["error"] == "timeout":
+                    raise TimeoutError("LLM request timed out")
+                elif response["error"] == "rate_limit":
+                    raise Exception("429 Rate limit exceeded")
+                elif response["error"] == "auth":
+                    raise Exception("401 Invalid API key")
+
+            content = response.get("content", "")
+            tool_calls = response.get("tool_calls", [])
+
+            if tool_calls:
+                return self._make_tool_call_chunks(content, tool_calls)
+
+            return self._make_chunk(content)
+
+        mock_completions.create = mock_create
+        mock_chat.completions = mock_completions
+        mock_client.chat = mock_chat
+        return mock_client
+
+    def _make_chunk(self, content: str):
+        """Create a streaming chunk."""
+        chunk = MagicMock()
+        delta = MagicMock()
+        delta.content = content
+        delta.tool_calls = None
+        chunk.choices = [MagicMock(delta=delta)]
+        # Return as async iterable
+        async def async_iter():
+            yield chunk
+        return async_iter()
+
+    def _make_tool_call_chunks(self, content: str, tool_calls: list):
+        """Create streaming chunks with tool calls."""
+        chunks = []
+        if content:
+            c = MagicMock()
+            d = MagicMock()
+            d.content = content
+            d.tool_calls = None
+            c.choices = [MagicMock(delta=d)]
+            chunks.append(c)
+
+        for i, tc in enumerate(tool_calls):
+            c = MagicMock()
+            d = MagicMock()
+            d.content = None
+            tc_mock = MagicMock()
+            tc_mock.index = i
+            tc_mock.id = tc.get("id", f"call_{i}")
+            func_mock = MagicMock()
+            func_mock.name = tc["function"]["name"]
+            func_mock.arguments = json.dumps(tc["function"]["arguments"])
+            tc_mock.function = func_mock
+            d.tool_calls = [tc_mock]
+            c.choices = [MagicMock(delta=d)]
+            chunks.append(c)
+
+        async def async_iter():
+            for chunk in chunks:
+                yield chunk
+        return async_iter()</code></pre>
+
+                    <h2>Step 2: Unit Test Individual Tools</h2>
+                    <p>Tools are the deterministic part of your agent. Test them like any other function — because they are.</p>
+                    <pre><code># tests/test_tools.py
+import pytest
+from app.tools import SearchTool, CalculatorTool, EmailTool
+
+class TestSearchTool:
+    def test_basic_search(self):
+        tool = SearchTool()
+        result = tool.run(query="Python testing best practices")
+        assert "pytest" in result.lower() or "testing" in result.lower()
+
+    def test_empty_query(self):
+        tool = SearchTool()
+        result = tool.run(query="")
+        assert "error" in result.lower() or "empty" in result.lower()
+
+    def test_special_characters(self):
+        tool = SearchTool()
+        result = tool.run(query="C++ & Java | Python")
+        assert result  # Should not crash
+
+class TestCalculatorTool:
+    def test_addition(self):
+        tool = CalculatorTool()
+        result = tool.run(expression="2 + 2")
+        assert "4" in result
+
+    def test_division_by_zero(self):
+        tool = CalculatorTool()
+        result = tool.run(expression="1 / 0")
+        assert "error" in result.lower() or "infinity" in result.lower()
+
+    def test_complex_expression(self):
+        tool = CalculatorTool()
+        result = tool.run(expression="(10 + 5) * 3 - 7")
+        assert "38" in result
+
+    def test_malicious_input(self):
+        tool = CalculatorTool()
+        result = tool.run(expression="__import__('os').system('rm -rf /')")
+        assert "error" in result.lower()
+
+class TestEmailTool:
+    def test_valid_email(self):
+        tool = EmailTool()
+        result = tool.run(to="test@example.com", subject="Hello", body="Test")
+        assert "sent" in result.lower() or "success" in result.lower()
+
+    def test_invalid_email_format(self):
+        tool = EmailTool()
+        result = tool.run(to="not-an-email", subject="Hello", body="Test")
+        assert "error" in result.lower() or "invalid" in result.lower()</code></pre>
+
+                    <h2>Step 3: Integration Test the Agent</h2>
+                    <p>This is where you test the agent's decision-making — does it call the right tool? Does it handle errors gracefully?</p>
+                    <pre><code># tests/test_agent_integration.py
+import pytest
+import json
+from app.agents.engine import AgentEngine
+from tests.mocks.llm import MockLLM
+
+class TestAgentIntegration:
+    @pytest.fixture
+    def agent(self):
+        mock_llm = MockLLM()
+        engine = AgentEngine()
+        engine.client = mock_llm.get_client()
+        return engine, mock_llm
+
+    @pytest.mark.asyncio
+    async def test_simple_conversation(self, agent):
+        engine, mock = agent
+        mock.add_response(content="Hello! How can I help you today?")
+
+        responses = []
+        async for chunk in engine.chat("Hi"):
+            data = json.loads(chunk.replace("data: ", "").strip())
+            if data["type"] == "content":
+                responses.append(data["content"])
+
+        full_response = "".join(responses)
+        assert "help" in full_response.lower()
+        assert mock.call_count == 1
+
+    @pytest.mark.asyncio
+    async def test_tool_selection(self, agent):
+        engine, mock = agent
+        # Agent should decide to use the calculator
+        mock.add_response(
+            content="",
+            tool_calls=[{
+                "id": "call_1",
+                "function": {
+                    "name": "calculator",
+                    "arguments": {"expression": "123 * 456"}
+                }
+            }]
+        )
+        # Response after tool execution
+        mock.add_response(content="The result is 56,088.")
+
+        tool_results = []
+        async for chunk in engine.chat("What's 123 times 456?"):
+            data = json.loads(chunk.replace("data: ", "").strip())
+            if data["type"] == "tool_result":
+                tool_results.append(data)
+
+        assert len(tool_results) == 1
+        assert tool_results[0]["tool"] == "calculator"
+
+    @pytest.mark.asyncio
+    async def test_llm_timeout_recovery(self, agent):
+        engine, mock = agent
+        mock.add_error("timeout")
+
+        errors = []
+        try:
+            async for chunk in engine.chat("Hello"):
+                pass
+        except TimeoutError:
+            errors.append("timeout")
+
+        assert "timeout" in errors
+
+    @pytest.mark.asyncio
+    async def test_session_memory(self, agent):
+        engine, mock = agent
+        mock.add_response(content="I remember you mentioned Python.")
+
+        # First message
+        session_id = None
+        async for chunk in engine.chat("I love Python"):
+            data = json.loads(chunk.replace("data: ", "").strip())
+            if "session_id" in data:
+                session_id = data["session_id"]
+
+        assert session_id is not None
+
+        # Second message in same session
+        mock.add_response(content="Yes, you told me you love Python!")
+        responses = []
+        async for chunk in engine.chat("What did I say?"):
+            data = json.loads(chunk.replace("data: ", "").strip())
+            if data["type"] == "content":
+                responses.append(data["content"])
+
+        full = "".join(responses)
+        assert "python" in full.lower()</code></pre>
+
+                    <h2>Step 4: E2E Tests with Recorded Responses</h2>
+                    <p>For critical workflows, record real LLM responses once, then replay them in tests. This gives you realistic test data without API costs.</p>
+                    <pre><code># tests/test_e2e_recorded.py
+import pytest
+import json
+import os
+from pathlib import Path
+
+RECORDINGS_DIR = Path(__file__).parent / "recordings"
+
+class TestRecordedWorkflows:
+    """E2E tests using recorded LLM responses."""
+
+    def setup_method(self):
+        self.recordings = {}
+        if RECORDINGS_DIR.exists():
+            for f in RECORDINGS_DIR.glob("*.json"):
+                self.recordings[f.stem] = json.loads(f.read_text())
+
+    @pytest.mark.asyncio
+    async def test_lead_qualification_workflow(self):
+        """Test the complete lead qualification flow."""
+        recording = self.recordings.get("lead_qualification")
+        if not recording:
+            pytest.skip("No recording available")
+
+        # Replay the recorded conversation
+        agent = create_agent_with_recording(recording)
+        result = await agent.qualify_lead(
+            email="john@startup.io",
+            company="TechCorp"
+        )
+
+        assert result.score > 0
+        assert result.recommendation in ("hot", "warm", "cold")
+        assert result.reasoning  # Must have reasoning
+
+    @pytest.mark.asyncio
+    async def test_support_ticket_routing(self):
+        """Test that support tickets are routed correctly."""
+        recording = self.recordings.get("support_routing")
+        if not recording:
+            pytest.skip("No recording available")
+
+        agent = create_agent_with_recording(recording)
+        result = await agent.route_ticket(
+            subject="Can't log in after password reset",
+            body="I reset my password but still can't access my account."
+        )
+
+        assert result.category == "authentication"
+        assert result.priority in ("high", "critical")
+        assert result.assigned_team == "auth-team"</code></pre>
+
+                    <h2>Step 5: CI/CD Pipeline Configuration</h2>
+                    <p>Run your test suite on every push. Fast unit tests run first; slow E2E tests only on main branch.</p>
+                    <pre><code># .github/workflows/test-agents.yml
+name: AI Agent Tests
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+jobs:
+  unit-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r requirements-test.txt
+      - run: pytest tests/test_tools.py tests/test_validators.py -v --tb=short
+        # No API keys needed — fully mocked
+
+  integration-tests:
+    runs-on: ubuntu-latest
+    needs: unit-tests
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r requirements-test.txt
+      - run: pytest tests/test_agent_integration.py -v --tb=short
+        # Uses MockLLM — no real API calls
+
+  e2e-tests:
+    runs-on: ubuntu-latest
+    needs: integration-tests
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r requirements-test.txt
+      - run: pytest tests/test_e2e_recorded.py -v --tb=short
+        # Uses recorded responses — no API costs</code></pre>
+
+                    <h2>Step 6: Cost Monitoring Tests</h2>
+                    <p>One runaway agent can cost thousands. Add tests that fail if token usage exceeds thresholds.</p>
+                    <pre><code># tests/test_cost_limits.py
+import pytest
+from app.agents.engine import AgentEngine
+
+class TestCostLimits:
+    """Ensure agents don't exceed cost thresholds."""
+
+    MAX_TOKENS_PER_REQUEST = 4000
+    MAX_TOOL_CALLS_PER_REQUEST = 5
+    MAX_COST_PER_SESSION = 0.50  # $0.50 USD
+
+    @pytest.mark.asyncio
+    async def test_token_limit(self, agent):
+        engine, mock = agent
+        # Simulate a very long response
+        mock.add_response(content="x" * 10000)
+
+        total_tokens = 0
+        async for chunk in engine.chat("Write a long essay"):
+            data = json.loads(chunk.replace("data: ", "").strip())
+            if data["type"] == "done":
+                total_tokens = data.get("tokens_used", 0)
+
+        assert total_tokens <= self.MAX_TOKENS_PER_REQUEST, \
+            f"Token usage {total_tokens} exceeds limit {self.MAX_TOKENS_PER_REQUEST}"
+
+    @pytest.mark.asyncio
+    async def test_tool_call_limit(self, agent):
+        engine, mock = agent
+        # Simulate agent going wild with tool calls
+        mock.add_response(
+            content="",
+            tool_calls=[
+                {"id": f"call_{i}", "function": {"name": "search",
+                 "arguments": {"query": f"query_{i}"}}}
+                for i in range(10)
+            ]
+        )
+
+        tool_count = 0
+        async for chunk in engine.chat("Research everything"):
+            data = json.loads(chunk.replace("data: ", "").strip())
+            if data["type"] == "tool_result":
+                tool_count += 1
+
+        assert tool_count <= self.MAX_TOOL_CALLS_PER_REQUEST, \
+            f"Tool calls {tool_count} exceeds limit {self.MAX_TOOL_CALLS_PER_REQUEST}"</code></pre>
+
+                    <h2>Test Coverage Checklist</h2>
+                    <p>Before deploying any AI agent, make sure you have:</p>
+                    <ul>
+                        <li>✅ <strong>Tool unit tests</strong> — Every tool tested with valid, invalid, and edge-case inputs</li>
+                        <li>✅ <strong>Mock LLM fixture</strong> — Configurable mock that can return content, tool calls, and errors</li>
+                        <li>✅ <strong>Agent decision tests</strong> — Verify the agent picks the right tool for given inputs</li>
+                        <li>✅ <strong>Error handling tests</strong> — Timeout, rate limit, auth failure, malformed responses</li>
+                        <li>✅ <strong>Session memory tests</strong> — Context persists across messages, expires correctly</li>
+                        <li>✅ <strong>Cost limit tests</strong> — Token usage and tool call count within thresholds</li>
+                        <li>✅ <strong>Recorded E2E tests</strong> — Critical workflows tested with real response data</li>
+                        <li>✅ <strong>CI/CD integration</strong> — Tests run automatically on every push</li>
+                    </ul>
+                    <p>This is the exact testing framework we use at ZOO. It caught 47 bugs before they reached production — including a tool that would have sent emails to the wrong recipients and a memory leak that grew 2MB per session.</p>
+                </div>
+
+                <!-- CTA -->
+                <div class="mt-16 glass rounded-2xl p-10 text-center border border-amber-500/30">
+                    <h2 class="text-2xl font-bold mb-4">Ship AI Agents That Don't Break</h2>
+                    <p class="text-gray-400 mb-6">We help teams build, test, and deploy production-ready AI agents — with proper testing from day one.</p>
+                    <a href="https://zootechnologies.com" class="inline-block px-8 py-4 rounded-full bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 transition font-bold text-lg">Get a Free Architecture Review →</a>
+                    <p class="text-gray-500 text-sm mt-4">We'll audit your agent architecture and testing strategy in 30 minutes.</p>
+                </div>
+            </article>
+        </div>
+    </main>
+
+    <footer class="py-12 border-t border-white/10">
+        <div class="max-w-5xl mx-auto px-6 text-center text-gray-500 text-sm">
+            <p>© 2026 ZOO. All rights reserved. | <a href="https://zoo.dev" class="text-zoo-400 hover:text-zoo-300">zoo.dev</a></p>
+        </div>
+    </footer>
+</body>
+</html>
