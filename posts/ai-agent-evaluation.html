@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Agent Evaluation — How to Test Agents Before Production | ZOO Blog</title>
+    <meta name="description" content="Guide to AI agent evaluation. Moving beyond unit tests to agent-based evaluation, bench-marking, output quality scoring, and human-in-the-loop loops for autonomous agents.">
+    <meta name="keywords" content="AI agent evaluation, LLM evaluation, AI agent testing, prompt evaluation, model benchmarking, autonomous agent QA">
+    <link rel="canonical" href="https://zootechnologies.com/posts/ai-agent-evaluation.html">
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-950 text-white min-h-screen pt-24 pb-16">
+    <main class="max-w-4xl mx-auto px-6">
+        <h1 class="text-4xl md:text-5xl font-black mb-6">AI Agent Evaluation — How to Test Agents Before Production</h1>
+        <p class="text-xl text-gray-400 mb-8">Unit tests are not enough. How we moved from basic pytest to multi-stage agent evaluation for mission-critical AI workflows.</p>
+        
+        <div class="glass p-6 rounded-xl mb-12 border border-zoo-500/30">
+            <h3 class="font-bold mb-2">🚀 Need help building robust agents?</h3>
+            <p class="text-sm text-gray-400 mb-4">Our ZOO Starter Bundle helps you build, test, and deploy AI products in 24 hours. Includes testing frameworks and monitoring tools.</p>
+            <a href="https://zoo.dev" class="text-zoo-400 font-bold">Get the ZOO Starter Bundle →</a>
+        </div>
+
+        <h2 class="text-2xl font-bold mb-4">1. Beyond Unit Tests</h2>
+        <p>Unit tests verify individual components. But AI agents are non-deterministic, agentic systems that use tools, maintain state, and handle long-running conversations. You need agent-based evaluation.</p>
+        
+        <h2 class="text-2xl font-bold mb-4">2. The 3-Tier Eval Framework</h2>
+        <ul class="list-disc pl-6 space-y-3">
+            <li><strong>Unit Evals:</strong> Mocking tools for basic component verification.</li>
+            <li><strong>Scenario Evals:</strong> Testing agents in controlled multi-turn scenarios (e.g., "Customer says X, Agent should do Y or Z").</li>
+            <li><strong>Production Evals (Shadow Mode):</strong> Running agents against production data without taking actions (using the OPA — Observability Pattern).</li>
+        </ul>
+    </main>
+</body>
+</html>
