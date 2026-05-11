@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Automation ROI Calculator — ZOO</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#0a0a0f;--card:#111118;--border:#1e1e2e;--accent:#6366f1;--accent-glow:rgba(99,102,241,.3);--green:#22c55e;--red:#ef4444;--text:#e2e8f0;--muted:#94a3b8}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;line-height:1.6}
+.container{max-width:720px;margin:0 auto;padding:40px 20px}
+.logo{text-align:center;margin-bottom:8px;font-size:14px;letter-spacing:3px;text-transform:uppercase;color:var(--accent);font-weight:700}
+h1{text-align:center;font-size:clamp(24px,5vw,36px);font-weight:800;margin-bottom:8px;background:linear-gradient(135deg,#fff,#94a3b8);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.sub{text-align:center;color:var(--muted);margin-bottom:40px;font-size:15px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:32px;margin-bottom:24px}
+label{display:block;font-size:13px;font-weight:600;color:var(--muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px}
+input[type=range]{width:100%;-webkit-appearance:none;height:6px;border-radius:3px;background:var(--border);outline:none;margin-bottom:4px}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:20px;border-radius:50%;background:var(--accent);cursor:pointer;box-shadow:0 0 12px var(--accent-glow)}
+.val-row{display:flex;justify-content:space-between;font-size:13px;color:var(--muted);margin-bottom:20px}
+.val-row span:last-child{color:var(--text);font-weight:600}
+.result-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px}
+.result-box{background:var(--bg);border:1px solid var(--border);border-radius:12px;padding:20px;text-align:center}
+.result-box .label{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:6px}
+.result-box .value{font-size:28px;font-weight:800}
+.result-box .sub-label{font-size:12px;color:var(--muted);margin-top:4px}
+.red .value{color:var(--red)}
+.green .value{color:var(--green)}
+.big-result{grid-column:1/-1;background:linear-gradient(135deg,rgba(99,102,241,.1),rgba(34,197,94,.1));border:1px solid var(--accent)}
+.big-result .value{font-size:42px;background:linear-gradient(135deg,var(--accent),var(--green));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.cta-box{text-align:center;padding:32px;background:linear-gradient(135deg,rgba(99,102,241,.15),rgba(99,102,241,.05));border:1px solid rgba(99,102,241,.3);border-radius:16px;margin-top:24px}
+.cta-box h3{font-size:20px;margin-bottom:8px}
+.cta-box p{color:var(--muted);margin-bottom:20px;font-size:14px}
+.cta-btn{display:inline-block;background:var(--accent);color:#fff;padding:14px 36px;border-radius:10px;text-decoration:none;font-weight:700;font-size:16px;transition:all .2s;box-shadow:0 4px 20px var(--accent-glow)}
+.cta-btn:hover{transform:translateY(-2px);box-shadow:0 8px 30px var(--accent-glow)}
+.email-form{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap;justify:center}
+.email-form input[type=email]{flex:1;min-width:220px;padding:12px 16px;border-radius:8px;border:1px solid var(--border);background:var(--bg);color:var(--text);font-size:14px;outline:none}
+.email-form input[type=email]:focus{border-color:var(--accent)}
+.email-form button{padding:12px 24px;border-radius:8px;border:none;background:var(--accent);color:#fff;font-weight:700;cursor:pointer;font-size:14px}
+.disclaimer{text-align:center;font-size:11px;color:var(--muted);margin-top:32px}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="logo">ZOO Automation</div>
+  <h1>Automation ROI Calculator</h1>
+  <p class="sub">See how much manual work is costing your company — in real numbers.</p>
+
+  <div class="card">
+    <label>Operations Team Size</label>
+    <input type="range" id="teamSize" min="3" max="50" value="10" oninput="calc()">
+    <div class="val-row"><span>3 people</span><span id="teamSizeVal">10 people</span><span>50 people</span></div>
+
+    <label>Average Annual Salary (per person)</label>
+    <input type="range" id="salary" min="30000" max="150000" value="65000" step="5000" oninput="calc()">
+    <div class="val-row"><span>$30K</span><span id="salaryVal">$65,000</span><span>$150K</span></div>
+
+    <label>Hours Wasted on Manual Tasks (per person/day)</label>
+    <input type="range" id="hoursWasted" min="0.5" max="4" value="2.1" step="0.1" oninput="calc()">
+    <div class="val-row"><span>0.5h</span><span id="hoursWastedVal">2.1 hours</span><span>4h</span></div>
+
+    <label>Working Days Per Year</label>
+    <input type="range" id="workDays" min="220" max="260" value="250" oninput="calc()">
+    <div class="val-row"><span>220</span><span id="workDaysVal">250 days</span><span>260</span></div>
+  </div>
+
+  <div class="card">
+    <div class="result-grid">
+      <div class="result-box red">
+        <div class="label">Annual Waste</div>
+        <div class="value" id="annualWaste">$163,800</div>
+        <div class="sub-label">cost of manual tasks</div>
+      </div>
+      <div class="result-box">
+        <div class="label">Hours Lost/Year</div>
+        <div class="value" id="hoursLost" style="color:#fff">5,250</div>
+        <div class="sub-label">person-hours wasted</div>
+      </div>
+      <div class="result-box">
+        <div class="label">Cost Per Day</div>
+        <div class="value" id="costPerDay" style="color:#fff">$655</div>
+        <div class="sub-label">burning every day</div>
+      </div>
+      <div class="result-box">
+        <div class="label">Employees (equiv)</div>
+        <div class="value" id="equivEmployees" style="color:#fff">2.6</div>
+        <div class="sub-label">full-time people wasted</div>
+      </div>
+      <div class="result-box big-result">
+        <div class="label">Your Estimated Annual Savings with Automation</div>
+        <div class="value" id="annualSavings">$114,660</div>
+        <div class="sub-label">70% of waste recoverable by AI agents</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="cta-box">
+    <h3>Get Your Custom Automation Assessment</h3>
+    <p>We'll analyze your specific operations and show you exactly where to automate — free, no strings attached.</p>
+    <a href="https://crazycompanyinc.github.io/zoo-automation-landing/" class="cta-btn">Book Free Assessment →</a>
+    <div style="margin-top:16px;font-size:13px;color:var(--muted)">Or email us: <strong style="color:var(--text)">hello@zootechnologies.com</strong></div>
+  </div>
+
+  <p class="disclaimer">*Based on analysis of 12 mid-size companies (50-200 employees). 70% automation rate assumes standard operational tasks. Actual results vary. This is an estimate, not a guarantee.</p>
+</div>
+
+<script>
+function calc(){
+  const team=parseInt(document.getElementById('teamSize').value);
+  const salary=parseInt(document.getElementById('salary').value);
+  const hours=parseFloat(document.getElementById('hoursWasted').value);
+  const days=parseInt(document.getElementById('workDays').value);
+
+  document.getElementById('teamSizeVal').textContent=team+' people';
+  document.getElementById('salaryVal').textContent='$'+salary.toLocaleString();
+  document.getElementById('hoursWastedVal').textContent=hours+' hours';
+  document.getElementById('workDaysVal').textContent=days+' days';
+
+  const hourlyRate=salary/(days*8);
+  const totalWaste=team*hours*days*hourlyRate;
+  const totalHours=team*hours*days;
+  const savings=totalWaste*0.70;
+  const costPerDay=totalWaste/days;
+  const equiv=totalHours/(days*8);
+
+  document.getElementById('annualWaste').textContent='$'+Math.round(totalWaste).toLocaleString();
+  document.getElementById('hoursLost').textContent=Math.round(totalHours).toLocaleString();
+  document.getElementById('costPerDay').textContent='$'+Math.round(costPerDay).toLocaleString();
+  document.getElementById('equivEmployees').textContent=equiv.toFixed(1);
+  document.getElementById('annualSavings').textContent='$'+Math.round(savings).toLocaleString();
+}
+calc();
+</script>
+</body>
+</html>
